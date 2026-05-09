@@ -1,18 +1,17 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app.database import get_db
+
 from app.schemas.transaction import TransactionCreate
-from app.services.transaction_service import *
+from app.services.transaction_service import TransactionService
 from app.routers.auth import auth_required
 
 router = APIRouter(prefix="/transactions")
 
-
 @router.post("/")
-def create(data: TransactionCreate, db: Session = Depends(get_db), user_id: int = Depends(auth_required)):
-    return create_transaction(db, data.dict(), user_id)
+async def create(data: TransactionCreate, service: TransactionService = Depends(), user_id: int = Depends(auth_required)):
+    return await service.create_transaction(data.dict(), user_id)
 
 
 @router.get("/")
-def get_all(db: Session = Depends(get_db), user_id: int = Depends(auth_required)):
-    return get_transactions(db, user_id)
+async def get_all(service: TransactionService = Depends(), user_id: int = Depends(auth_required)):
+    return await service.get_transactions(user_id)

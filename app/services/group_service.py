@@ -1,32 +1,26 @@
 from sqlalchemy.orm import Session
-from fastapi import HTTPException
+from fastapi import HTTPException, Depends
+
+from app.repositories.grouprepo import GroupRepository
 from app.models.group import Group
 
-
-def create_group(db: Session, name: str, user_id: int):
-    group = Group(name=name, owner_id=user_id)
-
-    db.add(group)
-    db.commit()
-    db.refresh(group)
-
-    return group
+class GroupService:
+    def __init__(self, group_repo: GroupRepository = Depends()):
+        self.group_repo = group_repo
 
 
-def get_groups(db: Session, user_id: int):
-    return db.query(Group).filter(Group.owner_id == user_id).all()
+    async def create_group(self, name: str, user_id: int):
+        return await self.group_repo.create(name, user_id)
 
 
-def delete_group(db: Session, group_id: int, user_id: int):
-    group = db.query(Group).filter(
-        Group.id == group_id,
-        Group.owner_id == user_id
-    ).first()
+    async def get_groups(self, user_id: int):
+        return await self.group_repo.get_all(user_id)
 
-    if not group:
-        raise HTTPException(404, "Group not found")
 
-    db.delete(group)
-    db.commit()
+    async def delete_group(self, group_id: int, user_id: int):
+        deleted = await self.group_repo.delete(group_id, user_id)
 
-    return {"message": "deleted"}
+        if not deleted:
+            raise HTTPException(404, "Group not found")
+
+        return {"message": "deleted"}
