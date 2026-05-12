@@ -5,3 +5,7 @@ psycopg2-binary
 redis
 pydantic
 asyncpg
+matplotlib
+pytest
+pytest-asyncio
+httpx

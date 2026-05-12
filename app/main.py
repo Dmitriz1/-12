@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from app.database import Base, engine
-from app.routers import auth, transactions, groups
+from app.routers import analytics, auth, groups, transactions
 
 app = FastAPI()
 
@@ -13,3 +13,4 @@ async def on_startup():
 app.include_router(auth.router)
 app.include_router(transactions.router)
 app.include_router(groups.router)
+app.include_router(analytics.router)
