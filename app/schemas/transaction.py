@@ -8,6 +8,11 @@ class TransactionCreate(BaseModel):
     category: str
     amount: float
 
+class TransactionUpdate(BaseModel):
+    title: str | None = None
+    type: str | None = None
+    category: str | None = None
+    amount: float | None = None
 
 class TransactionResponse(BaseModel):
     id: int
