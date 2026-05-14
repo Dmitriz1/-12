@@ -24,3 +24,11 @@ class GroupService:
             raise HTTPException(404, "Group not found")
 
         return {"message": "deleted"}
+
+    async def update_group(self, data: dict, group_id: int, user_id: int):
+        updated = await self.group_repo.update(data, group_id, user_id)
+
+        if not updated:
+            raise HTTPException(404, "Group not found")
+
+        return updated

@@ -32,3 +32,17 @@ class GroupRepository:
             return True
         
         return False
+
+    async def update(self, data: dict, group_id: int, user_id: int) -> bool | Group:
+        result = await self.db.execute(select(Group).where(Group.id == group_id, Group.owner_id == user_id))
+        group = result.scalar_one_or_none()
+
+        if group:
+            for key, value in data.items():
+                setattr(group, key, value)
+
+            await self.db.commit()
+            await self.db.refresh(group)
+            return group
+
+        return False

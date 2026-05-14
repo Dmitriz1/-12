@@ -21,11 +21,26 @@ class TransactionRepository:
         return transactions.scalars().all()
     
     async def delete(self, tx_id: int, user_id: int) -> bool:
-        transaction = await self.db.execute(select(Transaction).where(Transaction.id == tx_id, Transaction.user_id == user_id)).scalar_one_or_none()
+        result = await self.db.execute(select(Transaction).where(Transaction.id == tx_id, Transaction.user_id == user_id))
+        transaction = result.scalar_one_or_none()
 
         if transaction:
             await self.db.delete(transaction)
             await self.db.commit()
             return True
         
+        return False
+
+    async def update(self, data: dict, tx_id: int, user_id: int) -> bool | Transaction:
+        result = await self.db.execute(select(Transaction).where(Transaction.id == tx_id, Transaction.user_id == user_id))
+        transaction = result.scalar_one_or_none()
+
+        if transaction:
+            for key, value in data.items():
+                setattr(transaction, key, value)
+
+            await self.db.commit()
+            await self.db.refresh(transaction)
+            return transaction
+
         return False

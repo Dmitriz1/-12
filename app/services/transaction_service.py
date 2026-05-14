@@ -41,3 +41,12 @@ class TransactionService:
 
         redis_client.flushdb()
         return {"message": "deleted"}
+
+    async def update_transaction(self, data: dict, tx_id: int, user_id: int):
+        updated = await self.tx_repo.update(data, tx_id, user_id)
+
+        if not updated:
+            raise HTTPException(404, "Transaction not found")
+
+        redis_client.flushdb()
+        return updated
