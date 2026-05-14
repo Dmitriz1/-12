@@ -14,8 +14,9 @@ class AuthService:
         if existing:
             raise HTTPException(status_code=400, detail="User already exists")
 
-        await self.user_repo.create(username=username, password=password)
-
+        # СОЗДАЕМ И ВОЗВРАЩАЕМ ПОЛЬЗОВАТЕЛЯ
+        user = await self.user_repo.create(username=username, password=password)
+        return user  # <-- ЭТО СТРОКА БЫЛА ПРОПУЩЕНА
 
     async def login_user(self, username: str, password: str):
         user = await self.user_repo.get_by_name_and_password(username=username, password=password)
