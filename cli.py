@@ -96,6 +96,7 @@ class FinanceCLI:
                 "category": category,
                 "amount": amount
             },
+
             headers={"Authorization": f"Bearer {self.token}"}
         )
 
