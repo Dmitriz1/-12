@@ -206,59 +206,6 @@ class FinanceCLI:
         else:
             console.print(f"[red]❌ Ошибка: {response.status_code}[/red]")
 
-    async def show_stats(self):
-        """Статистика расходов по категориям (считаем из транзакций)"""
-        if not self.token:
-            console.print("[red]❌ Сначала войдите[/red]")
-            return
-
-        response = await self.client.get(
-            f"{BASE_URL}/transactions/",
-            headers={"Authorization": f"Bearer {self.token}"}
-        )
-
-        if response.status_code == 200:
-            transactions = response.json()
-
-            if not transactions:
-                console.print("[yellow]Нет транзакций для статистики[/yellow]")
-                return
-
-            # Считаем только расходы по категориям
-            stats = {}
-            for t in transactions:
-                if t.get("type") == "expense":
-                    category = t.get("category", "other")
-                    amount = t.get("amount", 0)
-                    stats[category] = stats.get(category, 0) + amount
-
-            if stats:
-                table = Table(title="📊 Расходы по категориям")
-                table.add_column("Категория", style="cyan")
-                table.add_column("Сумма", justify="right")
-                table.add_column("% от всех расходов", justify="right")
-
-                total = sum(stats.values())
-                for category, amount in sorted(stats.items(), key=lambda x: x[1], reverse=True):
-                    percentage = (amount / total * 100) if total > 0 else 0
-                    table.add_row(
-                        category.capitalize(),
-                        f"${amount:.2f}",
-                        f"{percentage:.1f}%"
-                    )
-
-                table.add_row("[bold]Итого[/bold]", f"[bold]${total:.2f}[/bold]", "100%")
-                console.print(table)
-
-                # Показываем самую затратную категорию
-                top_category = max(stats, key=stats.get)
-                console.print(f"\n[bold yellow]⚠️ Больше всего тратите на: {top_category.upper()}[/bold yellow]")
-                console.print(f"[dim]Всего расходов: ${total:.2f}[/dim]")
-            else:
-                console.print("[yellow]Нет расходов для статистики[/yellow]")
-        else:
-            console.print(f"[red]Ошибка: {response.status_code}[/red]")
-
     async def show_pie_chart(self) -> None:
         response = await self.client.get(f"{BASE_URL}/analytics/by-category")
         if response.status_code != 200:
@@ -287,9 +234,10 @@ class FinanceCLI:
         if not labels:
             console.print("[yellow]Нет данных за период[/yellow]")
             return
+        fmt_labels = [d[8:10] + "/" + d[5:7] + "/" + d[0:4] for d in labels]
         plt.clear_figure()
-        plt.plot(labels, data["expense"], label="Расходы")
-        plt.plot(labels, data["income"], label="Доходы")
+        plt.plot(fmt_labels, data["expense"], yside="left", label="Расходы", color="red")
+        plt.plot(fmt_labels, data["income"], yside="right", label="Доходы", color="green")
         plt.title("Доходы и расходы по дням")
         plt.show()
 
@@ -306,10 +254,14 @@ class FinanceCLI:
         if not labels:
             console.print("[yellow]Нет данных за период[/yellow]")
             return
+        fmt_labels = [d[8:10] + "/" + d[5:7] + "/" + d[0:4] for d in labels]
         plt.clear_figure()
-        plt.bar(labels, data["expense"], label="Расходы")
-        plt.bar(labels, data["income"], label="Доходы")
-        plt.title("Доходы и расходы по неделям")
+        plt.multiple_bar(
+            fmt_labels,
+            [data["expense"], data["income"]],
+            labels=["Расходы", "Доходы"],
+        )
+        plt.title("Расходы и доходы по неделям")
         plt.show()
 
     async def show_analytics(self):
@@ -358,16 +310,15 @@ class FinanceCLI:
             console.print("[cyan]2.[/] ➕ Добавить транзакцию")
             console.print("[cyan]3.[/] ✏️ Редактировать транзакцию")
             console.print("[cyan]4.[/] 🗑️ Удалить транзакцию")
-            console.print("[cyan]5.[/] 📈 Статистика")
-            console.print("[cyan]6.[/] 📉 Аналитика по категориям")
-            console.print("[cyan]7.[/] 🥧 График расходов по категориям")
-            console.print("[cyan]8.[/] 📈 Линейный график доходов/расходов")
-            console.print("[cyan]9.[/] 📊 Столбчатый график по неделям")
-            console.print("[cyan]10.[/] 🤖 AI рекомендации")
-            console.print("[cyan]11.[/] 🔄 Выйти из аккаунта")
+            console.print("[cyan]5.[/] 📉 Аналитика по категориям")
+            console.print("[cyan]6.[/] 🥧 График расходов по категориям")
+            console.print("[cyan]7.[/] 📈 Линейный график доходов/расходов")
+            console.print("[cyan]8.[/] 📊 Столбчатый график по неделям")
+            console.print("[cyan]9.[/] 🤖 AI рекомендации")
+            console.print("[cyan]10.[/] 🔄 Выйти из аккаунта")
             console.print("[red]0.[/] 🚪 Выход\n")
 
-            choice = Prompt.ask("Выберите действие", choices=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"])
+            choice = Prompt.ask("Выберите действие", choices=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"])
 
             if choice == "0":
                 return "exit"
@@ -389,30 +340,26 @@ class FinanceCLI:
                 input("\nНажмите Enter для продолжения...")
 
             elif choice == "5":
-                await self.show_stats()
-                input("\nНажмите Enter для продолжения...")
-
-            elif choice == "6":
                 await self.show_analytics()
                 input("\nНажмите Enter для продолжения...")
 
-            elif choice == "7":
+            elif choice == "6":
                 await self.show_pie_chart()
                 input("\nНажмите Enter для продолжения...")
 
-            elif choice == "8":
+            elif choice == "7":
                 await self.show_line_chart()
                 input("\nНажмите Enter для продолжения...")
 
-            elif choice == "9":
+            elif choice == "8":
                 await self.show_bar_chart()
                 input("\nНажмите Enter для продолжения...")
 
-            elif choice == "10":
+            elif choice == "9":
                 await self.show_ai_recommendations()
                 input("\nНажмите Enter для продолжения...")
 
-            elif choice == "11":
+            elif choice == "10":
                 self.token = None
                 console.print("[yellow]🔓 Вы вышли из аккаунта[/yellow]")
                 input("\nНажмите Enter для продолжения...")
