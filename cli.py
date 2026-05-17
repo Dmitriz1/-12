@@ -158,6 +158,53 @@ class FinanceCLI:
         else:
             console.print(f"[red]Ошибка: {response.status_code}[/red]")
 
+    async def delete_transaction(self):
+        if not self.token:
+            console.print("[red]❌ Сначала войдите[/red]")
+            return
+        tx_id = Prompt.ask("🗑️ ID транзакции для удаления")
+        response = await self.client.delete(
+            f"{BASE_URL}/transactions/{tx_id}",
+            headers={"Authorization": f"Bearer {self.token}"},
+        )
+        if response.status_code == 200:
+            console.print("[green]✅ Транзакция удалена[/green]")
+        else:
+            console.print(f"[red]❌ Ошибка: {response.status_code}[/red]")
+
+    async def edit_transaction(self):
+        if not self.token:
+            console.print("[red]❌ Сначала войдите[/red]")
+            return
+        tx_id = Prompt.ask("✏️ ID транзакции для редактирования")
+        console.print("[dim]Оставьте поле пустым чтобы не менять[/dim]")
+        title = Prompt.ask("📝 Новое название", default="")
+        amount_str = Prompt.ask("💵 Новая сумма", default="")
+
+        data = {}
+        if title:
+            data["title"] = title
+        if amount_str:
+            try:
+                data["amount"] = float(amount_str)
+            except ValueError:
+                console.print("[red]Неверная сумма[/red]")
+                return
+
+        if not data:
+            console.print("[yellow]Нечего менять[/yellow]")
+            return
+
+        response = await self.client.patch(
+            f"{BASE_URL}/transactions/{tx_id}",
+            headers={"Authorization": f"Bearer {self.token}"},
+            json=data,
+        )
+        if response.status_code == 200:
+            console.print("[green]✅ Транзакция обновлена[/green]")
+        else:
+            console.print(f"[red]❌ Ошибка: {response.status_code}[/red]")
+
     async def show_stats(self):
         """Статистика расходов по категориям (считаем из транзакций)"""
         if not self.token:
@@ -255,13 +302,15 @@ class FinanceCLI:
             console.print(Panel.fit("💰 FINANCE MANAGER 💰", style="bold white on blue"))
             console.print("\n[cyan]1.[/] 📊 Мои транзакции")
             console.print("[cyan]2.[/] ➕ Добавить транзакцию")
-            console.print("[cyan]3.[/] 📈 Статистика")
-            console.print("[cyan]4.[/] 📉 Аналитика по категориям")
-            console.print("[cyan]5.[/] 🤖 AI рекомендации")
-            console.print("[cyan]6.[/] 🔄 Выйти из аккаунта")
+            console.print("[cyan]3.[/] ✏️ Редактировать транзакцию")
+            console.print("[cyan]4.[/] 🗑️ Удалить транзакцию")
+            console.print("[cyan]5.[/] 📈 Статистика")
+            console.print("[cyan]6.[/] 📉 Аналитика по категориям")
+            console.print("[cyan]7.[/] 🤖 AI рекомендации")
+            console.print("[cyan]8.[/] 🔄 Выйти из аккаунта")
             console.print("[red]0.[/] 🚪 Выход\n")
 
-            choice = Prompt.ask("Выберите действие", choices=["0", "1", "2", "3", "4", "5", "6"])
+            choice = Prompt.ask("Выберите действие", choices=["0", "1", "2", "3", "4", "5", "6", "7", "8"])
 
             if choice == "0":
                 return "exit"
@@ -275,18 +324,26 @@ class FinanceCLI:
                 input("\nНажмите Enter для продолжения...")
 
             elif choice == "3":
-                await self.show_stats()
+                await self.edit_transaction()
                 input("\nНажмите Enter для продолжения...")
 
             elif choice == "4":
-                await self.show_analytics()
+                await self.delete_transaction()
                 input("\nНажмите Enter для продолжения...")
 
             elif choice == "5":
-                await self.show_ai_recommendations()
+                await self.show_stats()
                 input("\nНажмите Enter для продолжения...")
 
             elif choice == "6":
+                await self.show_analytics()
+                input("\nНажмите Enter для продолжения...")
+
+            elif choice == "7":
+                await self.show_ai_recommendations()
+                input("\nНажмите Enter для продолжения...")
+
+            elif choice == "8":
                 self.token = None
                 console.print("[yellow]🔓 Вы вышли из аккаунта[/yellow]")
                 input("\nНажмите Enter для продолжения...")
