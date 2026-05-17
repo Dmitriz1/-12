@@ -59,3 +59,24 @@ class AnalyticsRepository:
         )
         result = await self.db.execute(stmt)
         return result.all()
+
+    async def total_by_type(
+        self,
+        user_id: int,
+        dt_from: datetime,
+        dt_to: datetime,
+    ):
+        stmt = (
+            select(
+                Transaction.type,
+                func.sum(Transaction.amount).label("total"),
+            )
+            .where(
+                Transaction.user_id == user_id,
+                Transaction.created_at >= dt_from,
+                Transaction.created_at <= dt_to,
+            )
+            .group_by(Transaction.type)
+        )
+        result = await self.db.execute(stmt)
+        return result.all()

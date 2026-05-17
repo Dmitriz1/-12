@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from app.database import Base, engine
-from app.routers import analytics, auth, groups, transactions
+from app.routers import ai, analytics, auth, groups, transactions
 
 app = FastAPI()
 
@@ -14,3 +14,4 @@ app.include_router(auth.router)
 app.include_router(transactions.router)
 app.include_router(groups.router)
 app.include_router(analytics.router)
+app.include_router(ai.router)

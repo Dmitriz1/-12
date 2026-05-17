@@ -6,6 +6,8 @@ services:
     depends_on:
       - db
       - redis
+    environment:
+      GROQ_TOKEN: ${GROQ_TOKEN:-}
 
   db:
     image: postgres:15
