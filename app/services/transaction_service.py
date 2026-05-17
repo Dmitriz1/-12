@@ -1,4 +1,5 @@
-from sqlalchemy.orm import Session
+from datetime import datetime
+
 from fastapi import HTTPException, Depends
 
 from app.repositories.transactionrepo import TransactionRepository
@@ -17,8 +18,19 @@ class TransactionService:
 
 
     @cache(ttl=120)
-    async def get_transactions(self, user_id: int):
-        txs = await self.tx_repo.get_all_transactions(user_id)
+    async def get_transactions(
+        self,
+        user_id: int,
+        category: str | None = None,
+        dt_from: datetime | None = None,
+        dt_to: datetime | None = None,
+        limit: int = 100,
+        offset: int = 0,
+    ):
+        txs = await self.tx_repo.get_all_transactions(
+            user_id, category=category, dt_from=dt_from, dt_to=dt_to,
+            limit=limit, offset=offset,
+        )
 
         return [
             {

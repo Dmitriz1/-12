@@ -11,6 +11,15 @@ class UserLogin(BaseModel):
     password: str
 
 
+class UserChangePassword(BaseModel):
+    old_password: str
+    new_password: str
+
+
+class UserRefreshToken(BaseModel):
+    token: str
+
+
 class UserResponse(BaseModel):
     id: int
     username: str

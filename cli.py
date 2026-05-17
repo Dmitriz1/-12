@@ -1,5 +1,6 @@
 import asyncio
 import getpass
+import os
 import httpx
 import plotext as plt
 from rich.console import Console
@@ -265,6 +266,17 @@ class FinanceCLI:
         plt.title("Расходы и доходы по неделям")
         plt.show()
 
+    async def export_transactions(self):
+        fmt = Prompt.ask("📁 Формат", choices=["csv", "xlsx"], default="csv")
+        response = await self.client.get(f"{BASE_URL}/transactions/export", params={"format": fmt})
+        if response.status_code != 200:
+            console.print(f"[red]❌ Ошибка: {response.status_code}[/red]")
+            return
+        filename = f"transactions.{fmt}"
+        with open(filename, "wb") as f:
+            f.write(response.content)
+        console.print(f"[green]✅ Сохранено: {os.path.abspath(filename)}[/green]")
+
     async def show_analytics(self):
         response = await self.client.get(f"{BASE_URL}/analytics/by-category")
 
@@ -316,10 +328,11 @@ class FinanceCLI:
             console.print("[cyan]7.[/] 📈 Линейный график доходов/расходов")
             console.print("[cyan]8.[/] 📊 Столбчатый график по неделям")
             console.print("[cyan]9.[/] 🤖 AI рекомендации")
-            console.print("[cyan]10.[/] 🔄 Выйти из аккаунта")
+            console.print("[cyan]10.[/] 📥 Экспорт транзакций (CSV/XLSX)")
+            console.print("[cyan]11.[/] 🔄 Выйти из аккаунта")
             console.print("[red]0.[/] 🚪 Выход\n")
 
-            choice = Prompt.ask("Выберите действие", choices=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"])
+            choice = Prompt.ask("Выберите действие", choices=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"])
 
             if choice == "0":
                 return "exit"
@@ -361,6 +374,10 @@ class FinanceCLI:
                 input("\nНажмите Enter для продолжения...")
 
             elif choice == "10":
+                await self.export_transactions()
+                input("\nНажмите Enter для продолжения...")
+
+            elif choice == "11":
                 self.token = None
                 console.print("[yellow]🔓 Вы вышли из аккаунта[/yellow]")
                 input("\nНажмите Enter для продолжения...")

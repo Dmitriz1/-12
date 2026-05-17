@@ -8,7 +8,8 @@ def cache(ttl=60):
         @wraps(func)
         async def wrapper(*args, **kwargs):
             user_id = kwargs.get("user_id") or (args[1] if len(args) > 1 else "none")
-            key = f"{func.__name__}:{user_id}"
+            extra = ":".join(f"{k}={v}" for k, v in sorted(kwargs.items()) if k != "user_id" and v is not None)
+            key = f"{func.__name__}:{user_id}:{extra}" if extra else f"{func.__name__}:{user_id}"
 
             cached = await redis_client.get(key)
             if cached:

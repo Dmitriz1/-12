@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy import select
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,9 +18,25 @@ class TransactionRepository:
         await self.db.refresh(transaction)
         return transaction
     
-    async def get_all_transactions(self, user_id: int) -> list[Transaction]:
-        transactions = await self.db.execute(select(Transaction).where(Transaction.user_id == user_id))
-        return transactions.scalars().all()
+    async def get_all_transactions(
+        self,
+        user_id: int,
+        category: str | None = None,
+        dt_from: datetime | None = None,
+        dt_to: datetime | None = None,
+        limit: int = 100,
+        offset: int = 0,
+    ) -> list[Transaction]:
+        query = select(Transaction).where(Transaction.user_id == user_id)
+        if category:
+            query = query.where(Transaction.category == category)
+        if dt_from:
+            query = query.where(Transaction.created_at >= dt_from)
+        if dt_to:
+            query = query.where(Transaction.created_at <= dt_to)
+        query = query.order_by(Transaction.created_at.desc()).limit(limit).offset(offset)
+        result = await self.db.execute(query)
+        return result.scalars().all()
     
     async def delete(self, tx_id: int, user_id: int) -> bool:
         result = await self.db.execute(select(Transaction).where(Transaction.id == tx_id, Transaction.user_id == user_id))

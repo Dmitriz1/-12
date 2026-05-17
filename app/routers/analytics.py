@@ -92,3 +92,12 @@ async def timeline_chart(
         data["labels"], data["expense"], data["income"], kind,
     )
     return StreamingResponse(image, media_type="image/png")
+
+
+@router.get("/groups")
+async def groups_analytics(
+    rng: TimeRange = Depends(time_range),
+    service: AnalyticsService = Depends(),
+    user_id: int = Depends(auth_required),
+):
+    return await service.groups_analytics(user_id, rng.dt_from, rng.dt_to)

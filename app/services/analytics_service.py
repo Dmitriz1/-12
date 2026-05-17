@@ -83,3 +83,6 @@ class AnalyticsService:
         income = [by_bucket.get(b, {}).get("income", 0.0) for b in buckets]
 
         return {"labels": labels, "expense": expense, "income": income}
+
+    async def groups_analytics(self, user_id: int, dt_from: datetime, dt_to: datetime) -> list:
+        return await self.repo.group_analytics(user_id, dt_from, dt_to)

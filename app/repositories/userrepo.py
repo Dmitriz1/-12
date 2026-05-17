@@ -26,3 +26,14 @@ class UserRepository:
     async def get_by_name_and_password(self, username: str, password: str) -> Optional[User]:
         user = await self.db.execute(select(User).where(User.username == username, User.password == password))
         return user.scalar_one_or_none()
+
+    async def get_by_id(self, user_id: int) -> Optional[User]:
+        result = await self.db.execute(select(User).where(User.id == user_id))
+        return result.scalar_one_or_none()
+
+    async def update_password(self, user_id: int, new_password: str) -> None:
+        result = await self.db.execute(select(User).where(User.id == user_id))
+        user = result.scalar_one_or_none()
+        if user:
+            user.password = new_password
+            await self.db.commit()
