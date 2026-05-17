@@ -51,7 +51,7 @@ class AIService:
                 json={
                     "model": _GROQ_MODEL,
                     "messages": [{"role": "user", "content": prompt}],
-                    "max_tokens": 400,
+                    "max_tokens": 700,
                 },
             )
             response.raise_for_status()

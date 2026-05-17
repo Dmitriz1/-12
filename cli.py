@@ -62,7 +62,8 @@ class FinanceCLI:
 
         console.print("\n[bold cyan]➕ Новая транзакция[/bold cyan]")
         title = Prompt.ask("📝 Название транзакции")
-        trans_type = Prompt.ask("💰 Тип", choices=["Расход", "Доход"], default="Расход")
+        trans_type_ru = Prompt.ask("💰 Тип", choices=["Расход", "Доход"], default="Расход")
+        trans_type = "expense" if trans_type_ru == "Расход" else "income"
 
         categories = {
             "1": "Еда",
@@ -141,10 +142,11 @@ class FinanceCLI:
                 else:
                     total_expense += amount
 
+                type_ru = "Доход" if t.get("type") == "income" else "Расход"
                 table.add_row(
                     str(t.get("id", "?")),
                     t.get("title", "?")[:25],
-                    f"[{color}]{t.get('type', '?')}[/{color}]",
+                    f"[{color}]{type_ru}[/{color}]",
                     f"[{color}]{sign}{amount:.2f}[/{color}]",
                     t.get("category", "?")
                 )
