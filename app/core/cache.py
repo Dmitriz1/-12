@@ -6,16 +6,16 @@ from app.core.redis import redis_client
 def cache(ttl=60):
     def decorator(func):
         @wraps(func)
-        def wrapper(*args, **kwargs):
-            key = f"{func.__name__}:{args}:{kwargs}"
+        async def wrapper(*args, **kwargs):
+            user_id = kwargs.get("user_id") or (args[1] if len(args) > 1 else "none")
+            key = f"{func.__name__}:{user_id}"
 
-            cached = redis_client.get(key)
+            cached = await redis_client.get(key)
             if cached:
                 return json.loads(cached)
 
-            result = func(*args, **kwargs)
-
-            redis_client.setex(key, ttl, json.dumps(result, default=str))
+            result = await func(*args, **kwargs)
+            await redis_client.setex(key, ttl, json.dumps(result, default=str))
             return result
 
         return wrapper

@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import AsyncIterator, Awaitable, Callable
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 import pytest_asyncio
@@ -18,7 +18,7 @@ MakeTx = Callable[..., Awaitable[Transaction]]
 
 @pytest.fixture(autouse=True)
 def _mock_redis():
-    fake = MagicMock()
+    fake = AsyncMock()
     fake.get.return_value = None
     fake.setex.return_value = True
     fake.flushdb.return_value = True

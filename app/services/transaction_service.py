@@ -12,7 +12,7 @@ class TransactionService:
     async def create_transaction(self, data: dict, user_id: int):
         tx = await self.tx_repo.create(data, user_id)
 
-        redis_client.flushdb()
+        await redis_client.flushdb()
         return tx
 
 
@@ -39,7 +39,7 @@ class TransactionService:
         if not deleted:
             raise HTTPException(404, "Transaction not found")
 
-        redis_client.flushdb()
+        await redis_client.flushdb()
         return {"message": "deleted"}
 
     async def update_transaction(self, data: dict, tx_id: int, user_id: int):
@@ -48,5 +48,5 @@ class TransactionService:
         if not updated:
             raise HTTPException(404, "Transaction not found")
 
-        redis_client.flushdb()
+        await redis_client.flushdb()
         return updated
