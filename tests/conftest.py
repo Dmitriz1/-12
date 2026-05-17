@@ -1,6 +1,8 @@
 from datetime import datetime
 from typing import AsyncIterator, Awaitable, Callable
+from unittest.mock import MagicMock, patch
 
+import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import text
@@ -10,6 +12,21 @@ from app.database import Base, SessionLocal, engine
 from app.main import app
 from app.models.transaction import Transaction
 from app.models.user import User
+
+MakeTx = Callable[..., Awaitable[Transaction]]
+
+
+@pytest.fixture(autouse=True)
+def _mock_redis():
+    fake = MagicMock()
+    fake.get.return_value = None
+    fake.setex.return_value = True
+    fake.flushdb.return_value = True
+    with (
+        patch("app.services.transaction_service.redis_client", fake),
+        patch("app.core.cache.redis_client", fake),
+    ):
+        yield
 
 
 @pytest_asyncio.fixture(scope="session", autouse=True)
