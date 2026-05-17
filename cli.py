@@ -1,4 +1,5 @@
 import asyncio
+import getpass
 import httpx
 import plotext as plt
 from rich.console import Console
@@ -17,8 +18,8 @@ class FinanceCLI:
 
     async def login(self):
         console.print("\n[bold cyan]Вход в систему[/bold cyan]")
-        username = Prompt.ask("👤 Имя пользователя")
-        password = Prompt.ask("🔑 Пароль", password=True)
+        username = input("👤 Имя пользователя: ")
+        password = getpass.getpass("🔑 Пароль: ")
 
         response = await self.client.post(
             f"{BASE_URL}/auth/login",
@@ -36,9 +37,9 @@ class FinanceCLI:
 
     async def register(self):
         console.print("\n[bold cyan]Регистрация[/bold cyan]")
-        username = Prompt.ask("👤 Имя пользователя")
-        password = Prompt.ask("🔑 Пароль", password=True)
-        confirm = Prompt.ask("🔑 Подтвердить пароль", password=True)
+        username = input("👤 Имя пользователя: ")
+        password = getpass.getpass("🔑 Пароль: ")
+        confirm = getpass.getpass("🔑 Подтвердить пароль: ")
 
         if password != confirm:
             console.print("[red]❌ Пароли не совпадают[/red]")
@@ -62,7 +63,7 @@ class FinanceCLI:
             return
 
         console.print("\n[bold cyan]➕ Новая транзакция[/bold cyan]")
-        title = Prompt.ask("📝 Название транзакции")
+        title = input("📝 Название транзакции: ")
         trans_type_ru = Prompt.ask("💰 Тип", choices=["Расход", "Доход"], default="Расход")
         trans_type = "expense" if trans_type_ru == "Расход" else "income"
 
@@ -82,7 +83,7 @@ class FinanceCLI:
 
         while True:
             try:
-                amount = float(Prompt.ask("💵 Сумма"))
+                amount = float(input("💵 Сумма: "))
                 if amount <= 0:
                     console.print("[red]Сумма должна быть положительной[/red]")
                     continue
@@ -163,7 +164,7 @@ class FinanceCLI:
         if not self.token:
             console.print("[red]❌ Сначала войдите[/red]")
             return
-        tx_id = Prompt.ask("🗑️ ID транзакции для удаления")
+        tx_id = input("🗑️ ID транзакции для удаления: ")
         response = await self.client.delete(
             f"{BASE_URL}/transactions/{tx_id}",
             headers={"Authorization": f"Bearer {self.token}"},
@@ -177,10 +178,10 @@ class FinanceCLI:
         if not self.token:
             console.print("[red]❌ Сначала войдите[/red]")
             return
-        tx_id = Prompt.ask("✏️ ID транзакции для редактирования")
+        tx_id = input("✏️ ID транзакции для редактирования: ")
         console.print("[dim]Оставьте поле пустым чтобы не менять[/dim]")
-        title = Prompt.ask("📝 Новое название", default="")
-        amount_str = Prompt.ask("💵 Новая сумма", default="")
+        title = input("📝 Новое название: ")
+        amount_str = input("💵 Новая сумма: ")
 
         data = {}
         if title:

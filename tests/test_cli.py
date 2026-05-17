@@ -25,7 +25,7 @@ def cli():
 @pytest.mark.asyncio
 async def test_login_success(cli):
     cli.client.post = AsyncMock(return_value=_make_response(200, {"token": "tok123"}))
-    with patch("rich.prompt.Prompt.ask", side_effect=["demo", "pass"]):
+    with patch("builtins.input", side_effect=["demo"]), patch("getpass.getpass", return_value="pass"):
         result = await cli.login()
     assert result is True
     assert cli.token == "tok123"
@@ -34,7 +34,7 @@ async def test_login_success(cli):
 @pytest.mark.asyncio
 async def test_login_failure(cli):
     cli.client.post = AsyncMock(return_value=_make_response(401, {"detail": "Invalid credentials"}))
-    with patch("rich.prompt.Prompt.ask", side_effect=["demo", "wrong"]):
+    with patch("builtins.input", side_effect=["demo"]), patch("getpass.getpass", return_value="wrong"):
         result = await cli.login()
     assert result is False
     assert cli.token is None
@@ -43,14 +43,14 @@ async def test_login_failure(cli):
 @pytest.mark.asyncio
 async def test_register_success(cli):
     cli.client.post = AsyncMock(return_value=_make_response(200, {"id": 1}))
-    with patch("rich.prompt.Prompt.ask", side_effect=["newuser", "pass", "pass"]):
+    with patch("builtins.input", side_effect=["newuser"]), patch("getpass.getpass", side_effect=["pass", "pass"]):
         result = await cli.register()
     assert result is True
 
 
 @pytest.mark.asyncio
 async def test_register_password_mismatch(cli):
-    with patch("rich.prompt.Prompt.ask", side_effect=["newuser", "pass1", "pass2"]):
+    with patch("builtins.input", side_effect=["newuser"]), patch("getpass.getpass", side_effect=["pass1", "pass2"]):
         result = await cli.register()
     assert result is False
     cli.client.post.assert_not_called()
@@ -59,7 +59,7 @@ async def test_register_password_mismatch(cli):
 @pytest.mark.asyncio
 async def test_register_server_error(cli):
     cli.client.post = AsyncMock(return_value=_make_response(400, {"detail": "User already exists"}))
-    with patch("rich.prompt.Prompt.ask", side_effect=["demo", "pass", "pass"]):
+    with patch("builtins.input", side_effect=["demo"]), patch("getpass.getpass", side_effect=["pass", "pass"]):
         result = await cli.register()
     assert result is False
 
@@ -86,7 +86,10 @@ async def test_show_transactions_with_data(cli):
 async def test_add_transaction_expense(cli):
     cli.token = "tok"
     cli.client.post = AsyncMock(return_value=_make_response(200, {"id": 1}))
-    with patch("rich.prompt.Prompt.ask", side_effect=["Кафе", "Расход", "1", "500"]):
+    with (
+        patch("builtins.input", side_effect=["Кафе", "500"]),
+        patch("rich.prompt.Prompt.ask", side_effect=["Расход", "1"]),
+    ):
         await cli.add_transaction()
     cli.client.post.assert_called_once()
     payload = cli.client.post.call_args.kwargs["json"]
@@ -98,7 +101,10 @@ async def test_add_transaction_expense(cli):
 async def test_add_transaction_income(cli):
     cli.token = "tok"
     cli.client.post = AsyncMock(return_value=_make_response(200, {"id": 2}))
-    with patch("rich.prompt.Prompt.ask", side_effect=["Зарплата", "Доход", "4", "85000"]):
+    with (
+        patch("builtins.input", side_effect=["Зарплата", "85000"]),
+        patch("rich.prompt.Prompt.ask", side_effect=["Доход", "4"]),
+    ):
         await cli.add_transaction()
     payload = cli.client.post.call_args.kwargs["json"]
     assert payload["type"] == "income"
@@ -109,7 +115,7 @@ async def test_add_transaction_income(cli):
 async def test_delete_transaction_success(cli):
     cli.token = "tok"
     cli.client.delete = AsyncMock(return_value=_make_response(200, {"message": "deleted"}))
-    with patch("rich.prompt.Prompt.ask", return_value="1"):
+    with patch("builtins.input", return_value="1"):
         await cli.delete_transaction()
     cli.client.delete.assert_called_once()
 
@@ -118,7 +124,7 @@ async def test_delete_transaction_success(cli):
 async def test_delete_transaction_not_found(cli):
     cli.token = "tok"
     cli.client.delete = AsyncMock(return_value=_make_response(404, {"detail": "Not found"}))
-    with patch("rich.prompt.Prompt.ask", return_value="9999"):
+    with patch("builtins.input", return_value="9999"):
         await cli.delete_transaction()
 
 
@@ -126,7 +132,7 @@ async def test_delete_transaction_not_found(cli):
 async def test_edit_transaction_success(cli):
     cli.token = "tok"
     cli.client.patch = AsyncMock(return_value=_make_response(200, {"id": 1, "amount": 300}))
-    with patch("rich.prompt.Prompt.ask", side_effect=["1", "", "300"]):
+    with patch("builtins.input", side_effect=["1", "", "300"]):
         await cli.edit_transaction()
     payload = cli.client.patch.call_args.kwargs["json"]
     assert payload["amount"] == 300.0
@@ -136,7 +142,7 @@ async def test_edit_transaction_success(cli):
 async def test_edit_transaction_not_found(cli):
     cli.token = "tok"
     cli.client.patch = AsyncMock(return_value=_make_response(404, {"detail": "Not found"}))
-    with patch("rich.prompt.Prompt.ask", side_effect=["9999", "NewName", ""]):
+    with patch("builtins.input", side_effect=["9999", "NewName", ""]):
         await cli.edit_transaction()
 
 
