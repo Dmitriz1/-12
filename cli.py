@@ -1,7 +1,6 @@
 import asyncio
-import subprocess
-import tempfile
 import httpx
+import plotext as plt
 from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
@@ -260,32 +259,58 @@ class FinanceCLI:
         else:
             console.print(f"[red]Ошибка: {response.status_code}[/red]")
 
-    async def _open_chart(self, url: str) -> None:
-        response = await self.client.get(url)
-        if response.status_code != 200:
-            console.print(f"[red]❌ Ошибка получения графика: {response.status_code}[/red]")
-            return
-        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
-            f.write(response.content)
-            tmp_path = f.name
-        subprocess.Popen(["open", tmp_path])
-        console.print("[green]✅ График открыт в просмотрщике[/green]")
-
     async def show_pie_chart(self) -> None:
-        console.print("\n[bold cyan]Загружаю круговую диаграмму...[/bold cyan]")
-        await self._open_chart(f"{BASE_URL}/analytics/by-category/chart.png")
+        response = await self.client.get(f"{BASE_URL}/analytics/by-category")
+        if response.status_code != 200:
+            console.print(f"[red]❌ Ошибка: {response.status_code}[/red]")
+            return
+        data = response.json()
+        labels, values = data.get("labels", []), data.get("values", [])
+        if not labels:
+            console.print("[yellow]Нет данных за период[/yellow]")
+            return
+        plt.clear_figure()
+        plt.bar(labels, values, orientation="horizontal")
+        plt.title("Расходы по категориям")
+        plt.show()
 
     async def show_line_chart(self) -> None:
-        console.print("\n[bold cyan]Загружаю линейный график...[/bold cyan]")
-        await self._open_chart(
-            f"{BASE_URL}/analytics/timeline/chart.png?kind=line&granularity=day"
+        response = await self.client.get(
+            f"{BASE_URL}/analytics/timeline",
+            params={"granularity": "day"},
         )
+        if response.status_code != 200:
+            console.print(f"[red]❌ Ошибка: {response.status_code}[/red]")
+            return
+        data = response.json()
+        labels = data.get("labels", [])
+        if not labels:
+            console.print("[yellow]Нет данных за период[/yellow]")
+            return
+        plt.clear_figure()
+        plt.plot(labels, data["expense"], label="Расходы")
+        plt.plot(labels, data["income"], label="Доходы")
+        plt.title("Доходы и расходы по дням")
+        plt.show()
 
     async def show_bar_chart(self) -> None:
-        console.print("\n[bold cyan]Загружаю столбчатый график...[/bold cyan]")
-        await self._open_chart(
-            f"{BASE_URL}/analytics/timeline/chart.png?kind=bar&granularity=week"
+        response = await self.client.get(
+            f"{BASE_URL}/analytics/timeline",
+            params={"granularity": "week"},
         )
+        if response.status_code != 200:
+            console.print(f"[red]❌ Ошибка: {response.status_code}[/red]")
+            return
+        data = response.json()
+        labels = data.get("labels", [])
+        if not labels:
+            console.print("[yellow]Нет данных за период[/yellow]")
+            return
+        plt.clear_figure()
+        plt.bar(labels, data["expense"], label="Расходы")
+        plt.bar(labels, data["income"], label="Доходы")
+        plt.title("Доходы и расходы по неделям")
+        plt.show()
 
     async def show_analytics(self):
         response = await self.client.get(f"{BASE_URL}/analytics/by-category")
