@@ -1,4 +1,6 @@
 import asyncio
+import subprocess
+import tempfile
 import httpx
 from rich.console import Console
 from rich.table import Table
@@ -258,6 +260,33 @@ class FinanceCLI:
         else:
             console.print(f"[red]Ошибка: {response.status_code}[/red]")
 
+    async def _open_chart(self, url: str) -> None:
+        response = await self.client.get(url)
+        if response.status_code != 200:
+            console.print(f"[red]❌ Ошибка получения графика: {response.status_code}[/red]")
+            return
+        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
+            f.write(response.content)
+            tmp_path = f.name
+        subprocess.Popen(["open", tmp_path])
+        console.print("[green]✅ График открыт в просмотрщике[/green]")
+
+    async def show_pie_chart(self) -> None:
+        console.print("\n[bold cyan]Загружаю круговую диаграмму...[/bold cyan]")
+        await self._open_chart(f"{BASE_URL}/analytics/by-category/chart.png")
+
+    async def show_line_chart(self) -> None:
+        console.print("\n[bold cyan]Загружаю линейный график...[/bold cyan]")
+        await self._open_chart(
+            f"{BASE_URL}/analytics/timeline/chart.png?kind=line&granularity=day"
+        )
+
+    async def show_bar_chart(self) -> None:
+        console.print("\n[bold cyan]Загружаю столбчатый график...[/bold cyan]")
+        await self._open_chart(
+            f"{BASE_URL}/analytics/timeline/chart.png?kind=bar&granularity=week"
+        )
+
     async def show_analytics(self):
         response = await self.client.get(f"{BASE_URL}/analytics/by-category")
 
@@ -306,11 +335,14 @@ class FinanceCLI:
             console.print("[cyan]4.[/] 🗑️ Удалить транзакцию")
             console.print("[cyan]5.[/] 📈 Статистика")
             console.print("[cyan]6.[/] 📉 Аналитика по категориям")
-            console.print("[cyan]7.[/] 🤖 AI рекомендации")
-            console.print("[cyan]8.[/] 🔄 Выйти из аккаунта")
+            console.print("[cyan]7.[/] 🥧 График расходов по категориям")
+            console.print("[cyan]8.[/] 📈 Линейный график доходов/расходов")
+            console.print("[cyan]9.[/] 📊 Столбчатый график по неделям")
+            console.print("[cyan]10.[/] 🤖 AI рекомендации")
+            console.print("[cyan]11.[/] 🔄 Выйти из аккаунта")
             console.print("[red]0.[/] 🚪 Выход\n")
 
-            choice = Prompt.ask("Выберите действие", choices=["0", "1", "2", "3", "4", "5", "6", "7", "8"])
+            choice = Prompt.ask("Выберите действие", choices=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"])
 
             if choice == "0":
                 return "exit"
@@ -340,10 +372,22 @@ class FinanceCLI:
                 input("\nНажмите Enter для продолжения...")
 
             elif choice == "7":
-                await self.show_ai_recommendations()
+                await self.show_pie_chart()
                 input("\nНажмите Enter для продолжения...")
 
             elif choice == "8":
+                await self.show_line_chart()
+                input("\nНажмите Enter для продолжения...")
+
+            elif choice == "9":
+                await self.show_bar_chart()
+                input("\nНажмите Enter для продолжения...")
+
+            elif choice == "10":
+                await self.show_ai_recommendations()
+                input("\nНажмите Enter для продолжения...")
+
+            elif choice == "11":
                 self.token = None
                 console.print("[yellow]🔓 Вы вышли из аккаунта[/yellow]")
                 input("\nНажмите Enter для продолжения...")
