@@ -209,22 +209,60 @@ class FinanceCLI:
         else:
             console.print(f"[red]Ошибка: {response.status_code}[/red]")
 
+    async def show_analytics(self):
+        response = await self.client.get(f"{BASE_URL}/analytics/by-category")
+
+        if response.status_code != 200:
+            console.print(f"[red]Ошибка: {response.status_code}[/red]")
+            return
+
+        data = response.json()
+        labels, values = data.get("labels", []), data.get("values", [])
+
+        if not labels:
+            console.print("[yellow]Нет данных за период[/yellow]")
+            return
+
+        total = sum(values)
+        table = Table(title="📊 Расходы по категориям (текущий месяц)")
+        table.add_column("Категория", style="cyan")
+        table.add_column("Сумма", justify="right")
+        table.add_column("%", justify="right")
+
+        for label, value in zip(labels, values):
+            pct = (value / total * 100) if total else 0
+            table.add_row(label, f"{value:.0f} руб.", f"{pct:.1f}%")
+
+        table.add_row("[bold]Итого[/bold]", f"[bold]{total:.0f} руб.[/bold]", "100%")
+        console.print(table)
+
+    async def show_ai_recommendations(self):
+        console.print("\n[bold cyan]Получаю рекомендации...[/bold cyan]")
+        response = await self.client.get(f"{BASE_URL}/ai/recommendations")
+
+        if response.status_code != 200:
+            console.print(f"[red]Ошибка: {response.status_code}[/red]")
+            return
+
+        text = response.json().get("recommendations", "")
+        console.print(Panel(text, title="🤖 AI советник", border_style="green"))
+
     async def show_menu(self):
-        """Главное меню"""
         while True:
             console.clear()
             console.print(Panel.fit("💰 FINANCE MANAGER 💰", style="bold white on blue"))
             console.print("\n[cyan]1.[/] 📊 Мои транзакции")
             console.print("[cyan]2.[/] ➕ Добавить транзакцию")
             console.print("[cyan]3.[/] 📈 Статистика")
-            console.print("[cyan]4.[/] 🔄 Выйти из аккаунта")
+            console.print("[cyan]4.[/] 📉 Аналитика по категориям")
+            console.print("[cyan]5.[/] 🤖 AI рекомендации")
+            console.print("[cyan]6.[/] 🔄 Выйти из аккаунта")
             console.print("[red]0.[/] 🚪 Выход\n")
 
-            choice = Prompt.ask("Выберите действие", choices=["0", "1", "2", "3", "4"])
+            choice = Prompt.ask("Выберите действие", choices=["0", "1", "2", "3", "4", "5", "6"])
 
             if choice == "0":
-                # Выход из программы
-                return "exit"  # Специальный сигнал для выхода
+                return "exit"
 
             elif choice == "1":
                 await self.show_transactions()
@@ -239,11 +277,18 @@ class FinanceCLI:
                 input("\nНажмите Enter для продолжения...")
 
             elif choice == "4":
-                # Выход из аккаунта
+                await self.show_analytics()
+                input("\nНажмите Enter для продолжения...")
+
+            elif choice == "5":
+                await self.show_ai_recommendations()
+                input("\nНажмите Enter для продолжения...")
+
+            elif choice == "6":
                 self.token = None
                 console.print("[yellow]🔓 Вы вышли из аккаунта[/yellow]")
                 input("\nНажмите Enter для продолжения...")
-                return "logout"  # Возврат к авторизации
+                return "logout"
 
     async def run(self):
         """Главный цикл"""
