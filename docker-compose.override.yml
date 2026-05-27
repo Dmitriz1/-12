@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+    networks:
+      - finance-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@db:5432/finance_db
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - db
+      - redis
+    networks:
+      - finance-network
+    volumes:
+      - ./app:/app/app
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=finance_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - finance-network
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    networks:
+      - finance-network
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
+
+networks:
+  finance-network:
+    driver: bridge

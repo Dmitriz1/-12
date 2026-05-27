@@ -1,0 +1,109 @@
+.transaction-list {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  margin-top: 2rem;
+}
+
+.sort-controls {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem;
+  background-color: var(--background-color);
+  border-bottom: 1px solid var(--border-color);
+  align-items: center;
+}
+
+.sort-controls label {
+  font-weight: 500;
+}
+
+.sort-controls select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+.transactions-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.transactions-table thead {
+  background-color: var(--background-color);
+}
+
+.transactions-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-color);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.transactions-table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.transaction-row:hover {
+  background-color: var(--background-color);
+}
+
+.transaction-row.income .amount {
+  color: var(--success-color);
+  font-weight: bold;
+}
+
+.transaction-row.expense .amount {
+  color: var(--danger-color);
+  font-weight: bold;
+}
+
+.amount {
+  font-family: 'Courier New', monospace;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-small {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: var(--primary-color);
+  color: white;
+  transition: background-color 0.3s;
+}
+
+.btn-small:hover {
+  background-color: #45a049;
+}
+
+.btn-small.btn-danger {
+  background-color: var(--danger-color);
+}
+
+.btn-small.btn-danger:hover {
+  background-color: #da190b;
+}
+
+@media (max-width: 768px) {
+  .transactions-table {
+    font-size: 0.9rem;
+  }
+
+  .transactions-table th,
+  .transactions-table td {
+    padding: 0.75rem;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+}

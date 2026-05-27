@@ -1,0 +1,15 @@
+fastapi
+alembic
+uvicorn
+sqlalchemy
+psycopg2-binary
+redis
+pydantic
+asyncpg
+matplotlib
+pytest
+pytest-asyncio
+httpx
+rich
+plotext
+openpyxl
