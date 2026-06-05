@@ -1,0 +1,340 @@
+:root {
+  --color-primary: #2563eb;
+  --color-income: #10b981;
+  --color-expense: #ef4444;
+  --color-bg: #f9fafb;
+  --color-surface: #ffffff;
+  --color-text: #111827;
+  --color-text-secondary: #6b7280;
+  --color-border: #e5e7eb;
+  --radius: 8px;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.5;
+}
+
+.layout__main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+/* Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow);
+}
+.navbar__brand {
+  font-weight: 700;
+  font-size: 1.2rem;
+  text-decoration: none;
+  color: var(--color-text);
+}
+.navbar__links {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.navbar__links a {
+  text-decoration: none;
+  color: var(--color-text-secondary);
+}
+.navbar__links a:hover {
+  color: var(--color-primary);
+}
+
+/* Buttons */
+.btn {
+  border: none;
+  border-radius: var(--radius);
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: opacity 0.2s;
+}
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.btn--primary {
+  background: var(--color-primary);
+  color: #fff;
+}
+.btn--danger {
+  background: var(--color-expense);
+  color: #fff;
+  padding: 4px 10px;
+}
+.btn--ghost {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+/* Forms */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+.field label {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+}
+.input {
+  padding: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+}
+.input--error {
+  border-color: var(--color-expense);
+}
+.field__error,
+.form__server-error {
+  color: var(--color-expense);
+  font-size: 0.8rem;
+}
+
+/* Auth */
+.auth-page {
+  max-width: 380px;
+  margin: 40px auto;
+  background: var(--color-surface);
+  padding: 24px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.auth-page h1 {
+  margin-bottom: 16px;
+  text-align: center;
+}
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.auth-switch {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+}
+
+/* Home */
+.home {
+  text-align: center;
+  padding: 60px 16px;
+}
+.home h1 {
+  font-size: 2.4rem;
+  margin-bottom: 12px;
+}
+.home__subtitle {
+  color: var(--color-text-secondary);
+  margin-bottom: 32px;
+  font-size: 1.1rem;
+}
+.home__actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+/* Page */
+.page h1 {
+  margin-bottom: 24px;
+}
+
+/* Balance */
+.balance {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.balance__card {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-left: 4px solid var(--color-border);
+}
+.balance__card--income {
+  border-left-color: var(--color-income);
+}
+.balance__card--expense {
+  border-left-color: var(--color-expense);
+}
+.balance__card--total {
+  border-left-color: var(--color-primary);
+}
+.balance__label {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+}
+.balance__value {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+.balance__value--negative {
+  color: var(--color-expense);
+}
+
+/* Transactions layout */
+.tx-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+.tx-layout__form,
+.tx-layout__list {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+.tx-layout__form h2 {
+  margin-bottom: 16px;
+  font-size: 1.1rem;
+}
+
+/* Filters */
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.filters .input {
+  flex: 1;
+}
+
+/* Table */
+.tx-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.tx-table th,
+.tx-table td {
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--color-border);
+}
+.tx-table th {
+  color: var(--color-text-secondary);
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+.amount--income {
+  color: var(--color-income);
+  font-weight: 600;
+}
+.amount--expense {
+  color: var(--color-expense);
+  font-weight: 600;
+}
+
+/* Badge */
+.badge {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.badge--income {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--color-income);
+}
+.badge--expense {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--color-expense);
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  color: var(--color-text-secondary);
+  padding: 32px;
+}
+
+/* Analytics */
+.analytics-section {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.analytics-section h2 {
+  margin-bottom: 16px;
+  font-size: 1.15rem;
+}
+.analytics-chart {
+  max-width: 100%;
+  height: auto;
+  margin-top: 16px;
+  border-radius: var(--radius);
+}
+.ai-panel {
+  margin-top: 16px;
+  padding: 16px;
+  background: rgba(16, 185, 129, 0.06);
+  border-left: 4px solid var(--color-income);
+  border-radius: var(--radius);
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+/* Spinner */
+.spinner {
+  display: flex;
+  justify-content: center;
+  padding: 24px;
+}
+.spinner__dot {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive */
+@media (max-width: 800px) {
+  .tx-layout {
+    grid-template-columns: 1fr;
+  }
+  .balance {
+    grid-template-columns: 1fr;
+  }
+}
