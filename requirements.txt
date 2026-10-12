@@ -1,11 +1,12 @@
 fastapi
 alembic
 uvicorn
-sqlalchemy
+sqlalchemy[asyncio]
 psycopg2-binary
 redis
 pydantic
 asyncpg
+python-dotenv
 matplotlib
 pytest
 pytest-asyncio

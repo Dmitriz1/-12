@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from app.database import Base, engine
+from app.models import group, transaction, user
 from app.routers import ai, analytics, auth, groups, transactions
 
 app = FastAPI()
