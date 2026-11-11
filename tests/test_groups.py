@@ -23,7 +23,7 @@ async def test_create_group_returns_correct_fields(
     client: AsyncClient, user,
 ) -> None:
     response = await client.post("/groups/", json={"name": "Семья"})
-    assert response.status_code == 200
+    assert response.status_code == 201
     data = response.json()
     assert data["name"] == "Семья"
     assert "id" in data
@@ -52,8 +52,8 @@ async def test_delete_group(
 ) -> None:
     group = await _make_group(db, "Удалить", user)
     response = await client.delete(f"/groups/{group.id}")
-    assert response.status_code == 200
-    assert response.json() == {"message": "deleted"}
+    assert response.status_code == 204
+    assert response.content == b""
 
     remaining = await client.get("/groups/")
     assert all(g["id"] != group.id for g in remaining.json())

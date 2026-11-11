@@ -1,15 +1,17 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class GroupCreate(BaseModel):
-    name: str
+    name: str = Field(min_length=1, max_length=100)
+
 
 class GroupUpdate(BaseModel):
-    name: str | None = None
+    name: str | None = Field(default=None, min_length=1, max_length=100)
+
 
 class GroupResponse(BaseModel):
     id: int
     name: str
+    owner_id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

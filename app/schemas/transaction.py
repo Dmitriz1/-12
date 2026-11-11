@@ -1,26 +1,31 @@
-from pydantic import BaseModel
 from datetime import datetime
+from typing import Literal
+
+from pydantic import BaseModel, ConfigDict, Field
+
+TransactionType = Literal["income", "expense"]
 
 
 class TransactionCreate(BaseModel):
-    title: str
-    type: str  # income / expense
-    category: str
-    amount: float
+    title: str = Field(min_length=1, max_length=255)
+    type: TransactionType
+    category: str = Field(min_length=1, max_length=100)
+    amount: float = Field(gt=0)
+
 
 class TransactionUpdate(BaseModel):
-    title: str | None = None
-    type: str | None = None
-    category: str | None = None
-    amount: float | None = None
+    title: str | None = Field(default=None, min_length=1, max_length=255)
+    type: TransactionType | None = None
+    category: str | None = Field(default=None, min_length=1, max_length=100)
+    amount: float | None = Field(default=None, gt=0)
+
 
 class TransactionResponse(BaseModel):
     id: int
     title: str
-    type: str
+    type: TransactionType
     category: str
     amount: float
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
