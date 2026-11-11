@@ -18,7 +18,7 @@ async def test_create_expense_returns_correct_fields(
         "/transactions/",
         json={"title": "Кафе", "type": "expense", "category": "Еда", "amount": 500},
     )
-    assert response.status_code == 200
+    assert response.status_code == 201
     data = response.json()
     assert data["title"] == "Кафе"
     assert data["type"] == "expense"
@@ -27,7 +27,6 @@ async def test_create_expense_returns_correct_fields(
     assert "id" in data
     assert "created_at" in data
 
-
 async def test_create_income_returns_correct_fields(
     client: AsyncClient, user,
 ) -> None:
@@ -35,11 +34,10 @@ async def test_create_income_returns_correct_fields(
         "/transactions/",
         json={"title": "Зарплата", "type": "income", "category": "Работа", "amount": 80000},
     )
-    assert response.status_code == 200
+    assert response.status_code == 201
     data = response.json()
     assert data["type"] == "income"
     assert data["amount"] == 80000.0
-
 
 async def test_create_transaction_missing_fields_returns_422(
     client: AsyncClient, user,
@@ -66,12 +64,11 @@ async def test_delete_transaction(
 ) -> None:
     tx = await make_tx("Удалить меня", "expense", "Прочее", 100, datetime(2026, 5, 1, 12))
     response = await client.delete(f"/transactions/{tx.id}")
-    assert response.status_code == 200
-    assert response.json() == {"message": "deleted"}
+    assert response.status_code == 204
+    assert response.content == b""
 
     remaining = await client.get("/transactions/")
     assert all(t["id"] != tx.id for t in remaining.json())
-
 
 async def test_delete_nonexistent_returns_404(
     client: AsyncClient, user,
