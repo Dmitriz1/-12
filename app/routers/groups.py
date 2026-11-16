@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Query, HTTPException
 
 from app.routers.auth import auth_required
-from app.schemas.group import GroupCreate, GroupResponse, GroupUpdate
+from app.schemas.group import GroupCreate, GroupResponse, GroupUpdate, GroupResponseMetaData
 from app.services.group_service import GroupService
 
 router = APIRouter(prefix="/groups", tags=["groups"])
@@ -20,19 +20,26 @@ async def create(
 ):
     return await service.create_group(name=data.name, user_id=user_id)
 
-
 @router.get(
     "/",
-    response_model=list[GroupResponse],
-    summary="Список групп (пагинация)",
+    response_model=GroupResponseMetaData,
+    summary="Список групп (пагинация + сортирока)",
 )
 async def get_all(
     service: GroupService = Depends(),
     user_id: int = Depends(auth_required),
-    limit: int = 100,
-    offset: int = 0,
+    page: int = Query(1, ge=1),
+    per_page: int = Query(10, ge=1, le=100),
+    sort_by: str = Query("name", description="Поле сортировки"),
+    sort_order: str = Query("desc", regex="^(asc|desc)$"),
 ):
-    return await service.get_groups(user_id=user_id, limit=limit, offset=offset)
+    return await service.get_groups(
+        user_id=user_id,
+        page=page,
+        per_page=per_page,
+        sort_by=sort_by,
+        sort_order=sort_order
+        )
 
 
 @router.get(

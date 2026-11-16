@@ -1,6 +1,8 @@
 services:
   app:
     build: .
+    volumes:
+      - .:/app #Для разработки, потом убрать
     ports:
       - "8000:8000"
     depends_on:

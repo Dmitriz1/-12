@@ -2,11 +2,11 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class GroupCreate(BaseModel):
-    name: str = Field(min_length=1, max_length=100)
+    name: str = Field(min_length=3, max_length=100)
 
 
 class GroupUpdate(BaseModel):
-    name: str | None = Field(default=None, min_length=1, max_length=100)
+    name: str | None = Field(default=None, min_length=3, max_length=100)
 
 
 class GroupResponse(BaseModel):
@@ -15,3 +15,10 @@ class GroupResponse(BaseModel):
     owner_id: int
 
     model_config = ConfigDict(from_attributes=True)
+
+class GroupResponseMetaData(BaseModel):
+    items: list[GroupResponse]
+    total: int
+    page: int
+    per_page: int
+    total_pages: int

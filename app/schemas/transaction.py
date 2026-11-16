@@ -7,16 +7,16 @@ TransactionType = Literal["income", "expense"]
 
 
 class TransactionCreate(BaseModel):
-    title: str = Field(min_length=1, max_length=255)
+    title: str = Field(min_length=3, max_length=255)
     type: TransactionType
-    category: str = Field(min_length=1, max_length=100)
+    category: str = Field(min_length=3, max_length=100)
     amount: float = Field(gt=0)
 
 
 class TransactionUpdate(BaseModel):
-    title: str | None = Field(default=None, min_length=1, max_length=255)
+    title: str | None = Field(default=None, min_length=3, max_length=255)
     type: TransactionType | None = None
-    category: str | None = Field(default=None, min_length=1, max_length=100)
+    category: str | None = Field(default=None, min_length=3, max_length=100)
     amount: float | None = Field(default=None, gt=0)
 
 
@@ -29,3 +29,10 @@ class TransactionResponse(BaseModel):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+class TransactionResponseMetaData(BaseModel):
+    items: list[TransactionResponse]
+    total: int
+    page: int
+    per_page: int
+    total_pages: int

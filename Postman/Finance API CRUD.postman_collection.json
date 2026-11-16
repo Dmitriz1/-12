@@ -1,0 +1,3708 @@
+{
+  "info": {
+    "_postman_id": "b75b038d-0135-4775-aa0e-2753eb796c04",
+    "name": "Finance API CRUD",
+    "description": "CRUD + Auth для проекта учёта расходов",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "60203861",
+    "_collection_link": "https://go.postman.co/collection/60203861-b75b038d-0135-4775-aa0e-2753eb796c04?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "item": [
+            {
+              "name": "200",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('201/200 Created', () => pm.response.to.have.status(200));\npm.test('has id', () => pm.expect(pm.response.json()).to.have.property('id'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"username\": \"demo123\",\n  \"password\": \"demo123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/auth/register",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "409",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('409', () => {\n    pm.response.to.have.status(409)\n    pm.expect(pm.response.json().error_code).to.eql('CONFLICT')\n    }\n);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"username\": \"demo123\",\n  \"password\": \"demo123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/auth/register",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "item": [
+            {
+              "name": "200",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200 OK', () => pm.response.to.have.status(200));\npm.test('has token', () => pm.expect(pm.response.json()).to.have.property('token'));\npm.collectionVariables.set('token', pm.response.json().token);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"username\": \"demo\",\n  \"password\": \"demo123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/auth/login",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "401",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('401', () => {\n    pm.response.to.have.status(401)\n    pm.expect(pm.response.json().error_code).to.eql('UNAUTHORIZED')\n    }\n);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"username\": \"\",\n  \"password\": \"\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/auth/login",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Refresh token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/refresh",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Transactions",
+      "item": [
+        {
+          "name": "Pre-test requests",
+          "item": [
+            {
+              "name": "1",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      ""
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Продукты\",\n  \"type\": \"expense\",\n  \"category\": \"Еда\",\n  \"amount\": 1500\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/transactions/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "transactions",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "2",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      ""
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Продукты\",\n  \"type\": \"expense\",\n  \"category\": \"Еда\",\n  \"amount\": 2000\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/transactions/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "transactions",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "3",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      ""
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Продукты\",\n  \"type\": \"expense\",\n  \"category\": \"Еда\",\n  \"amount\": 10000\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/transactions/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "transactions",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "4",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      ""
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Зарплата\",\n  \"type\": \"income\",\n  \"category\": \"Доход\",\n  \"amount\": 30000\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/transactions/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "transactions",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "5",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      ""
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Вклад\",\n  \"type\": \"income\",\n  \"category\": \"Доход\",\n  \"amount\": 1500\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/transactions/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "transactions",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "6",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      ""
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Вклад\",\n  \"type\": \"income\",\n  \"category\": \"Доход\",\n  \"amount\": 1435\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/transactions/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "transactions",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "7",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      ""
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Капли для носа\",\n  \"type\": \"expense\",\n  \"category\": \"Лекарства\",\n  \"amount\": 300\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/transactions/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "transactions",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "8",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      ""
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Противовирусное\",\n  \"type\": \"expense\",\n  \"category\": \"Лекарства\",\n  \"amount\": 699\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/transactions/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "transactions",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "9",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.collectionVariables.set(\"tx_id\", pm.response.json().id);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Пластыри\",\n  \"type\": \"expense\",\n  \"category\": \"Лекарства\",\n  \"amount\": 200\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/transactions/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "transactions",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Post",
+          "item": [
+            {
+              "name": "upper limit",
+              "item": [
+                {
+                  "name": "201",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "pm.test('201 Created', () => pm.response.to.have.status(201));"
+                        ]
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"title\": {{255 symbols}},\n  \"type\": \"income\",\n  \"category\": {{100 symbols}},\n  \"amount\": 1500\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/transactions/",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "transactions",
+                        ""
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "400",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "pm.test('400 VALIDATION_ERROR', () => {\r\n    pm.response.to.have.status(400)\r\n    pm.expect(pm.response.json().error_code).to.eql('VALIDATION_ERROR')\r\n    }\r\n);\r\n\r\npm.test('Validation error message contains right fields', () => {\r\n    const responseBody = pm.response.json();\r\n    fields = responseBody.fields\r\n    pm.expect(fields).to.have.members([\r\n        \"title\", \"category\"\r\n    ]);\r\n})"
+                        ]
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"title\": {{256 symbols}},\n  \"type\": \"expense\",\n  \"category\": {{101 symbols}},\n  \"amount\": 1500\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/transactions/",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "transactions",
+                        ""
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "lower limit",
+              "item": [
+                {
+                  "name": "201",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "pm.test('201 Created', () => pm.response.to.have.status(201));"
+                        ]
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"title\": {{3 symbols}},\n  \"type\": \"income\",\n  \"category\": {{3 symbols}},\n  \"amount\": 1500\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/transactions/",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "transactions",
+                        ""
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "400",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "pm.test('400 VALIDATION_ERROR', () => {\r\n    pm.response.to.have.status(400)\r\n    pm.expect(pm.response.json().error_code).to.eql('VALIDATION_ERROR')\r\n    }\r\n);\r\n\r\npm.test('Validation error message contains right fields', () => {\r\n    const responseBody = pm.response.json();\r\n    fields = responseBody.fields\r\n    pm.expect(fields).to.have.members([\r\n        \"title\", \"category\"\r\n    ]);\r\n})"
+                        ]
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"title\": {{2 symbols}},\n  \"type\": \"income\",\n  \"category\": {{2 symbols}},\n  \"amount\": 1500\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/transactions/",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "transactions",
+                        ""
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "201 +  Response Body",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('201 Created', () => pm.response.to.have.status(201));\n\npm.test('201 Response Body', () =>{\n    const response = pm.response.json();\n    pm.expect(response).to.include.keys('id', 'title', 'type', 'category', 'amount', 'created_at');\n})"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Продукты\",\n  \"type\": \"expense\",\n  \"category\": \"Еда\",\n  \"amount\": 1500\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/transactions/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "transactions",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "400 incorrect information",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('400 VALIDATION_ERROR', () => {\r\n    pm.response.to.have.status(400)\r\n    pm.expect(pm.response.json().error_code).to.eql('VALIDATION_ERROR')\r\n    }\r\n);\r\n\r\npm.test('Validation error message right fields', () => {\r\n    const responseBody = pm.response.json();\r\n    fields = responseBody.fields\r\n    pm.expect(fields).to.have.members([\r\n        \"type\"\r\n    ]);\r\n})"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Продукты\",\n  \"type\": \"wrong\",\n  \"category\": \"Еда\",\n  \"amount\": 1500\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/transactions/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "transactions",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Get",
+          "item": [
+            {
+              "name": "Many",
+              "item": [
+                {
+                  "name": "pagination",
+                  "item": [
+                    {
+                      "name": "upper limit",
+                      "item": [
+                        {
+                          "name": "200",
+                          "event": [
+                            {
+                              "listen": "test",
+                              "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                  "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                                ]
+                              }
+                            }
+                          ],
+                          "request": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{base_url}}/transactions/?page=1&per_page=100",
+                              "host": [
+                                "{{base_url}}"
+                              ],
+                              "path": [
+                                "transactions",
+                                ""
+                              ],
+                              "query": [
+                                {
+                                  "key": "page",
+                                  "value": "1"
+                                },
+                                {
+                                  "key": "per_page",
+                                  "value": "100"
+                                }
+                              ]
+                            }
+                          },
+                          "response": []
+                        },
+                        {
+                          "name": "400",
+                          "event": [
+                            {
+                              "listen": "test",
+                              "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                  "pm.test('400 VALIDATION_ERROR', () => {\n    pm.response.to.have.status(400)\n    pm.expect(pm.response.json().error_code).to.eql('VALIDATION_ERROR')\n    }\n);\n\npm.test('Validation error message right fields', () => {\n    const responseBody = pm.response.json();\n    fields = responseBody.fields\n    pm.expect(fields).to.have.members([\n        \"per_page\"\n    ]);\n})"
+                                ]
+                              }
+                            }
+                          ],
+                          "request": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{base_url}}/transactions/?page=1&per_page=101",
+                              "host": [
+                                "{{base_url}}"
+                              ],
+                              "path": [
+                                "transactions",
+                                ""
+                              ],
+                              "query": [
+                                {
+                                  "key": "page",
+                                  "value": "1"
+                                },
+                                {
+                                  "key": "per_page",
+                                  "value": "101"
+                                }
+                              ]
+                            }
+                          },
+                          "response": []
+                        }
+                      ]
+                    },
+                    {
+                      "name": "lower limit",
+                      "item": [
+                        {
+                          "name": "200",
+                          "event": [
+                            {
+                              "listen": "test",
+                              "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                  "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                                ]
+                              }
+                            }
+                          ],
+                          "request": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{base_url}}/transactions/?page=1&per_page=1",
+                              "host": [
+                                "{{base_url}}"
+                              ],
+                              "path": [
+                                "transactions",
+                                ""
+                              ],
+                              "query": [
+                                {
+                                  "key": "page",
+                                  "value": "1"
+                                },
+                                {
+                                  "key": "per_page",
+                                  "value": "1"
+                                }
+                              ]
+                            }
+                          },
+                          "response": []
+                        },
+                        {
+                          "name": "400",
+                          "event": [
+                            {
+                              "listen": "test",
+                              "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                  "pm.test('400 VALIDATION_ERROR', () => {\n    pm.response.to.have.status(400)\n    pm.expect(pm.response.json().error_code).to.eql('VALIDATION_ERROR')\n    }\n);\n\npm.test('Validation error message right fields', () => {\n    const responseBody = pm.response.json();\n    fields = responseBody.fields\n    pm.expect(fields).to.have.members([\n        \"per_page\", \"page\"\n    ]);\n})"
+                                ]
+                              }
+                            }
+                          ],
+                          "request": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{base_url}}/transactions/?page=0&per_page=0",
+                              "host": [
+                                "{{base_url}}"
+                              ],
+                              "path": [
+                                "transactions",
+                                ""
+                              ],
+                              "query": [
+                                {
+                                  "key": "page",
+                                  "value": "0"
+                                },
+                                {
+                                  "key": "per_page",
+                                  "value": "0"
+                                }
+                              ]
+                            }
+                          },
+                          "response": []
+                        }
+                      ]
+                    },
+                    {
+                      "name": "200 + Response Body",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "type": "text/javascript",
+                            "exec": [
+                              "pm.test('200 OK', () => pm.response.to.have.status(200));\n\npm.test('200 Response Body', () =>{\n    const response = pm.response.json();\n    pm.expect(response.page).to.eql(2);\n    pm.expect(response.per_page).to.eql(5);\n    pm.expect(response.items).to.be.an('array');\n    pm.expect(response.items.length).to.be.at.most(5);\n})"
+                            ]
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/transactions/?page=2&per_page=5",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "transactions",
+                            ""
+                          ],
+                          "query": [
+                            {
+                              "key": "page",
+                              "value": "2"
+                            },
+                            {
+                              "key": "per_page",
+                              "value": "5"
+                            }
+                          ]
+                        }
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "400 incorrect information - float",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "type": "text/javascript",
+                            "exec": [
+                              "pm.test('400 VALIDATION_ERROR', () => {\n    pm.response.to.have.status(400)\n    pm.expect(pm.response.json().error_code).to.eql('VALIDATION_ERROR')\n    }\n);\n\npm.test('Validation error message right fields', () => {\n    const responseBody = pm.response.json();\n    fields = responseBody.fields\n    pm.expect(fields).to.have.members([\n        \"per_page\", \"page\"\n    ]);\n})"
+                            ]
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/transactions/?page=2.55&per_page=5.5",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "transactions",
+                            ""
+                          ],
+                          "query": [
+                            {
+                              "key": "page",
+                              "value": "2.55"
+                            },
+                            {
+                              "key": "per_page",
+                              "value": "5.5"
+                            }
+                          ]
+                        }
+                      },
+                      "response": []
+                    }
+                  ]
+                },
+                {
+                  "name": "filter",
+                  "item": [
+                    {
+                      "name": "List (filter category+date+type)",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "type": "text/javascript",
+                            "exec": [
+                              "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\n\r\npm.test(\"Response Body with right elements\", () => {\r\n    const response = pm.response.json();\r\n    const items = response.items;\r\n\r\n    items.forEach((item) => {\r\n        pm.expect(item.type).to.equal('expense');\r\n        pm.expect(item.category).to.equal('Лекарства');\r\n        //добавить дату\r\n    })\r\n})"
+                            ]
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/transactions/?category=Лекарства&dt_from=2026-01-01T00:00:00&dt_to=2026-12-31T23:59:59&type=expense",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "transactions",
+                            ""
+                          ],
+                          "query": [
+                            {
+                              "key": "category",
+                              "value": "Лекарства"
+                            },
+                            {
+                              "key": "dt_from",
+                              "value": "2026-01-01T00:00:00"
+                            },
+                            {
+                              "key": "dt_to",
+                              "value": "2026-12-31T23:59:59"
+                            },
+                            {
+                              "key": "type",
+                              "value": "expense"
+                            }
+                          ]
+                        }
+                      },
+                      "response": []
+                    }
+                  ]
+                },
+                {
+                  "name": "sort",
+                  "item": [
+                    {
+                      "name": "amount ASC",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "type": "text/javascript",
+                            "exec": [
+                              "pm.test(\"Transactions sorted by amount ASC\", () => {\r\n    const response = pm.response.json();\r\n    const amounts = response.items.map(item => item.amount);\r\n\r\n    const sortedAmounts = [...amounts].sort((a, b) => a - b);\r\n\r\n    pm.expect(amounts).to.eql(sortedAmounts);\r\n});"
+                            ]
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/transactions/?sort_by=amount&sort_order=asc",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "transactions",
+                            ""
+                          ],
+                          "query": [
+                            {
+                              "key": "sort_by",
+                              "value": "amount"
+                            },
+                            {
+                              "key": "sort_order",
+                              "value": "asc"
+                            }
+                          ]
+                        }
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "amount DESC",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "type": "text/javascript",
+                            "exec": [
+                              "pm.test(\"Transactions sorted by amount ASC\", () => {\r\n    const response = pm.response.json();\r\n    const amounts = response.items.map(item => item.amount);\r\n\r\n    const sortedAmounts = [...amounts].sort((a, b) => b - a);\r\n\r\n    pm.expect(amounts).to.eql(sortedAmounts);\r\n});"
+                            ]
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/transactions/?sort_by=amount&sort_order=desc",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "transactions",
+                            ""
+                          ],
+                          "query": [
+                            {
+                              "key": "sort_by",
+                              "value": "amount"
+                            },
+                            {
+                              "key": "sort_order",
+                              "value": "desc"
+                            }
+                          ]
+                        }
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "created_at ASC",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "type": "text/javascript",
+                            "exec": [
+                              "pm.test(\"Transactions sorted by created_at ASC\", () => {\r\n    const response = pm.response.json();\r\n\r\n    const dates = response.items.map(item =>\r\n        new Date(item.created_at).getTime()\r\n    );\r\n\r\n    const sortedDates = [...dates].sort((a, b) => a - b);\r\n\r\n    pm.expect(dates).to.eql(sortedDates);\r\n});"
+                            ]
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/transactions/?sort_by=created_at&sort_order=asc",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "transactions",
+                            ""
+                          ],
+                          "query": [
+                            {
+                              "key": "sort_by",
+                              "value": "created_at"
+                            },
+                            {
+                              "key": "sort_order",
+                              "value": "asc"
+                            }
+                          ]
+                        }
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "created_at DESC",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "type": "text/javascript",
+                            "exec": [
+                              "pm.test(\"Transactions sorted by created_at ASC\", () => {\r\n    const response = pm.response.json();\r\n\r\n    const dates = response.items.map(item =>\r\n        new Date(item.created_at).getTime()\r\n    );\r\n\r\n    const sortedDates = [...dates].sort((a, b) => b - a);\r\n\r\n    pm.expect(dates).to.eql(sortedDates);\r\n});"
+                            ]
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/transactions/?sort_by=created_at&sort_order=desc",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "transactions",
+                            ""
+                          ],
+                          "query": [
+                            {
+                              "key": "sort_by",
+                              "value": "created_at"
+                            },
+                            {
+                              "key": "sort_order",
+                              "value": "desc"
+                            }
+                          ]
+                        }
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "wrong param sort_by",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "type": "text/javascript",
+                            "exec": [
+                              "pm.test('400 BAD_REQUEST', () => {\r\n    pm.response.to.have.status(400)\r\n    pm.expect(pm.response.json().error_code).to.eql('BAD_REQUEST')\r\n    }\r\n);"
+                            ]
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/transactions/?sort_by=wrong",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "transactions",
+                            ""
+                          ],
+                          "query": [
+                            {
+                              "key": "sort_by",
+                              "value": "wrong"
+                            }
+                          ]
+                        }
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "wrong param sort_order",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "type": "text/javascript",
+                            "exec": [
+                              "pm.test('400 VALIDATION_ERROR', () => {\r\n    pm.response.to.have.status(400)\r\n    pm.expect(pm.response.json().error_code).to.eql('VALIDATION_ERROR')\r\n    }\r\n);"
+                            ]
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/transactions/?sort_order=24",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "transactions",
+                            ""
+                          ],
+                          "query": [
+                            {
+                              "key": "sort_order",
+                              "value": "24"
+                            }
+                          ]
+                        }
+                      },
+                      "response": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "One",
+              "item": [
+                {
+                  "name": "Get by id",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                          "pm.test('same id', () => pm.expect(pm.response.json().id).to.eql(Number(pm.collectionVariables.get('tx_id'))));"
+                        ]
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/transactions/{{tx_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "transactions",
+                        "{{tx_id}}"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Get by id — 404",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "pm.test('404 No Content', () => {\r\n    pm.response.to.have.status(404)\r\n    pm.expect(pm.response.json().error_code).to.eql('NOT_FOUND')\r\n    }\r\n);"
+                        ]
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/transactions/999999",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "transactions",
+                        "999999"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Put/Patch",
+          "item": [
+            {
+              "name": "PUT",
+              "item": [
+                {
+                  "name": "upper limit",
+                  "item": [
+                    {
+                      "name": "200",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "type": "text/javascript",
+                            "exec": [
+                              "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                            ]
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "PUT",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"title\": {{255 symbols}},\n  \"type\": \"income\",\n  \"category\": {{100 symbols}},\n  \"amount\": 50000\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/transactions/{{tx_id}}",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "transactions",
+                            "{{tx_id}}"
+                          ]
+                        }
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "400",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "type": "text/javascript",
+                            "exec": [
+                              "pm.test('400 VALIDATION_ERROR', () => {\n    pm.response.to.have.status(400)\n    pm.expect(pm.response.json().error_code).to.eql('VALIDATION_ERROR')\n    }\n);\n\npm.test('Validation error message right fields', () => {\n    const responseBody = pm.response.json();\n    fields = responseBody.fields\n    pm.expect(fields).to.have.members([\n        \"title\", \"category\"\n    ]);\n})\n"
+                            ]
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "PUT",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"title\": {{256 symbols}},\n  \"type\": \"income\",\n  \"category\": {{101 symbols}},\n  \"amount\": 50000\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/transactions/{{tx_id}}",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "transactions",
+                            "{{tx_id}}"
+                          ]
+                        }
+                      },
+                      "response": []
+                    }
+                  ]
+                },
+                {
+                  "name": "lower limit",
+                  "item": [
+                    {
+                      "name": "200",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "type": "text/javascript",
+                            "exec": [
+                              "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                            ]
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "PUT",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"title\": {{3 symbols}},\n  \"type\": \"income\",\n  \"category\": {{3 symbols}},\n  \"amount\": 50000\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/transactions/{{tx_id}}",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "transactions",
+                            "{{tx_id}}"
+                          ]
+                        }
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "400",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "type": "text/javascript",
+                            "exec": [
+                              "pm.test('400 VALIDATION_ERROR', () => {\n    pm.response.to.have.status(400)\n    pm.expect(pm.response.json().error_code).to.eql('VALIDATION_ERROR')\n    }\n);\n\npm.test('Validation error message right fields', () => {\n    const responseBody = pm.response.json();\n    fields = responseBody.fields\n    pm.expect(fields).to.have.members([\n        \"title\", \"category\"\n    ]);\n})\n\n"
+                            ]
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "PUT",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"title\": {{2 symbols}},\n  \"type\": \"income\",\n  \"category\": {{2 symbols}},\n  \"amount\": 50000\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/transactions/{{tx_id}}",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "transactions",
+                            "{{tx_id}}"
+                          ]
+                        }
+                      },
+                      "response": []
+                    }
+                  ]
+                },
+                {
+                  "name": "201 Response Body",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "pm.test('200 OK', () => pm.response.to.have.status(200));\n\npm.test('200 Response Body', () =>{\n    const response = pm.response.json();\n    pm.expect(response.title).to.eql('Новое имя');\n    pm.expect(response.type).to.eql('income');\n    pm.expect(response.category).to.eql('Работа');\n    pm.expect(response.amount).to.eql(50000.0);\n})"
+                        ]
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"title\": \"Новое имя\",\n  \"type\": \"income\",\n  \"category\": \"Работа\",\n  \"amount\": 50000\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/transactions/{{tx_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "transactions",
+                        "{{tx_id}}"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "400 incorrect information",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "pm.test('400 VALIDATION_ERROR', () => {\n    pm.response.to.have.status(400)\n    pm.expect(pm.response.json().error_code).to.eql('VALIDATION_ERROR')\n    }\n);\n\npm.test('Validation error message right fields', () => {\n    const responseBody = pm.response.json();\n    fields = responseBody.fields\n    pm.expect(fields).to.have.members([\n        \"type\"\n    ]);\n})\n\n"
+                        ]
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"title\": \"Новое имя\",\n  \"type\": \"income24\",\n  \"category\": \"Работа\",\n  \"amount\": 50000\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/transactions/{{tx_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "transactions",
+                        "{{tx_id}}"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "400 void information",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "pm.test('400 VALIDATION_ERROR', () => {\n    pm.response.to.have.status(400)\n    pm.expect(pm.response.json().error_code).to.eql('VALIDATION_ERROR')\n    }\n);\n\npm.test('Validation error message right fields', () => {\n    const responseBody = pm.response.json();\n    fields = responseBody.fields\n    pm.expect(fields).to.have.members([\n        \"title\", \"type\", \"category\", \"amount\"\n    ]);\n})\n"
+                        ]
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n    \n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/transactions/{{tx_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "transactions",
+                        "{{tx_id}}"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "404",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "pm.test('404 No Content', () => {\n    pm.response.to.have.status(404)\n    pm.expect(pm.response.json().error_code).to.eql('NOT_FOUND')\n    }\n);\n\n"
+                        ]
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"title\": \"Новое имя\",\n  \"type\": \"income\",\n  \"category\": \"Работа\",\n  \"amount\": 50000\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/transactions/0",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "transactions",
+                        "0"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "PATCH",
+              "item": [
+                {
+                  "name": "PATCH (partial)",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                          "pm.test('amount updated', () => pm.expect(pm.response.json().amount).to.eql(777));"
+                        ]
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "PATCH",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"amount\": 777\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/transactions/{{tx_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "transactions",
+                        "{{tx_id}}"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "404",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "pm.test('404 No Content', () => {\r\n    pm.response.to.have.status(404)\r\n    pm.expect(pm.response.json().error_code).to.eql('NOT_FOUND')\r\n    }\r\n);"
+                        ]
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "PATCH",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"amount\": 777\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/transactions/0",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "transactions",
+                        "0"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Delete",
+          "item": [
+            {
+              "name": "DELETE (204)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('204 No Content', () => pm.response.to.have.status(204));",
+                      "pm.test('empty body', () => pm.expect(pm.response.text()).to.eql(''));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/transactions/{{tx_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "transactions",
+                    "{{tx_id}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "404",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('404 No Content', () => {\n    pm.response.to.have.status(404)\n    pm.expect(pm.response.json().error_code).to.eql('NOT_FOUND')\n    }\n);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/transactions/0",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "transactions",
+                    "0"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Groups",
+      "item": [
+        {
+          "name": "Pre-test requests",
+          "item": [
+            {
+              "name": "1",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      ""
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Семья\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/groups/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "groups",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "2",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Бюджет-1\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/groups/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "groups",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "3",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.collectionVariables.set(\"group_id\", pm.response.json().id);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Бюджет-2\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/groups/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "groups",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Post",
+          "item": [
+            {
+              "name": "upper limit",
+              "item": [
+                {
+                  "name": "201",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "pm.test('201 Created', () => pm.response.to.have.status(201));"
+                        ]
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": {{100 symbols}}\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/groups/",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "groups",
+                        ""
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "400",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "pm.test('400 VALIDATION_ERROR', () => {\n    pm.response.to.have.status(400)\n    pm.expect(pm.response.json().error_code).to.eql('VALIDATION_ERROR')\n    }\n);\n\npm.test('Validation error message contains right fields', () => {\n    const responseBody = pm.response.json();\n    fields = responseBody.fields\n    pm.expect(fields).to.have.members([\n        \"name\"\n    ]);\n})"
+                        ]
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": {{101 symbols}}\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/groups/",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "groups",
+                        ""
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "lower limit",
+              "item": [
+                {
+                  "name": "201",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "pm.test('201 Created', () => pm.response.to.have.status(201));"
+                        ]
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": {{3 symbols}}\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/groups/",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "groups",
+                        ""
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "400",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "pm.test('400 VALIDATION_ERROR', () => {\n    pm.response.to.have.status(400)\n    pm.expect(pm.response.json().error_code).to.eql('VALIDATION_ERROR')\n    }\n);\n\npm.test('Validation error message contains right fields', () => {\n    const responseBody = pm.response.json();\n    fields = responseBody.fields\n    pm.expect(fields).to.have.members([\n        \"name\"\n    ]);\n})"
+                        ]
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": {{2 symbols}}\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/groups/",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "groups",
+                        ""
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "Create (201, save id)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('201 Created', () => pm.response.to.have.status(201));\n\npm.test('201 Response Body', () =>{\n    const response = pm.response.json();\n    pm.expect(response).to.include.keys('id', 'name', 'owner_id');\n})"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Семья\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/groups/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "groups",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Get",
+          "item": [
+            {
+              "name": "Many",
+              "item": [
+                {
+                  "name": "pagination",
+                  "item": [
+                    {
+                      "name": "upper limit",
+                      "item": [
+                        {
+                          "name": "200",
+                          "event": [
+                            {
+                              "listen": "test",
+                              "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                  "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                                ]
+                              }
+                            }
+                          ],
+                          "request": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{base_url}}/groups/?page=1&per_page=100",
+                              "host": [
+                                "{{base_url}}"
+                              ],
+                              "path": [
+                                "groups",
+                                ""
+                              ],
+                              "query": [
+                                {
+                                  "key": "page",
+                                  "value": "1"
+                                },
+                                {
+                                  "key": "per_page",
+                                  "value": "100"
+                                }
+                              ]
+                            }
+                          },
+                          "response": []
+                        },
+                        {
+                          "name": "400",
+                          "event": [
+                            {
+                              "listen": "test",
+                              "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                  "pm.test('400 VALIDATION_ERROR', () => {\n    pm.response.to.have.status(400)\n    pm.expect(pm.response.json().error_code).to.eql('VALIDATION_ERROR')\n    }\n);\n\npm.test('Validation error message right fields', () => {\n    const responseBody = pm.response.json();\n    fields = responseBody.fields\n    pm.expect(fields).to.have.members([\n        \"per_page\"\n    ]);\n})"
+                                ]
+                              }
+                            }
+                          ],
+                          "request": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{base_url}}/groups/?page=1&per_page=101",
+                              "host": [
+                                "{{base_url}}"
+                              ],
+                              "path": [
+                                "groups",
+                                ""
+                              ],
+                              "query": [
+                                {
+                                  "key": "page",
+                                  "value": "1"
+                                },
+                                {
+                                  "key": "per_page",
+                                  "value": "101"
+                                }
+                              ]
+                            }
+                          },
+                          "response": []
+                        }
+                      ]
+                    },
+                    {
+                      "name": "lower limit",
+                      "item": [
+                        {
+                          "name": "200",
+                          "event": [
+                            {
+                              "listen": "test",
+                              "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                  "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                                ]
+                              }
+                            }
+                          ],
+                          "request": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{base_url}}/groups/?page=1&per_page=1",
+                              "host": [
+                                "{{base_url}}"
+                              ],
+                              "path": [
+                                "groups",
+                                ""
+                              ],
+                              "query": [
+                                {
+                                  "key": "page",
+                                  "value": "1"
+                                },
+                                {
+                                  "key": "per_page",
+                                  "value": "1"
+                                }
+                              ]
+                            }
+                          },
+                          "response": []
+                        },
+                        {
+                          "name": "400",
+                          "event": [
+                            {
+                              "listen": "test",
+                              "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                  "pm.test('400 VALIDATION_ERROR', () => {\n    pm.response.to.have.status(400)\n    pm.expect(pm.response.json().error_code).to.eql('VALIDATION_ERROR')\n    }\n);\n\npm.test('Validation error message right fields', () => {\n    const responseBody = pm.response.json();\n    fields = responseBody.fields\n    pm.expect(fields).to.have.members([\n        \"per_page\", \"page\"\n    ]);\n})"
+                                ]
+                              }
+                            }
+                          ],
+                          "request": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{base_url}}/groups/?page=0&per_page=0",
+                              "host": [
+                                "{{base_url}}"
+                              ],
+                              "path": [
+                                "groups",
+                                ""
+                              ],
+                              "query": [
+                                {
+                                  "key": "page",
+                                  "value": "0"
+                                },
+                                {
+                                  "key": "per_page",
+                                  "value": "0"
+                                }
+                              ]
+                            }
+                          },
+                          "response": []
+                        }
+                      ]
+                    },
+                    {
+                      "name": "200 + Response Body",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "type": "text/javascript",
+                            "exec": [
+                              "pm.test('200 OK', () => pm.response.to.have.status(200));\n\npm.test('200 Response Body', () =>{\n    const response = pm.response.json();\n    pm.expect(response.page).to.eql(2);\n    pm.expect(response.per_page).to.eql(5);\n    pm.expect(response.items).to.be.an('array');\n    pm.expect(response.items.length).to.be.at.most(5);\n})"
+                            ]
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/groups/?page=2&per_page=5",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "groups",
+                            ""
+                          ],
+                          "query": [
+                            {
+                              "key": "page",
+                              "value": "2"
+                            },
+                            {
+                              "key": "per_page",
+                              "value": "5"
+                            }
+                          ]
+                        }
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "400 incorrect information - float",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "type": "text/javascript",
+                            "exec": [
+                              "pm.test('400 VALIDATION_ERROR', () => {\n    pm.response.to.have.status(400)\n    pm.expect(pm.response.json().error_code).to.eql('VALIDATION_ERROR')\n    }\n);\n\npm.test('Validation error message right fields', () => {\n    const responseBody = pm.response.json();\n    fields = responseBody.fields\n    pm.expect(fields).to.have.members([\n        \"per_page\", \"page\"\n    ]);\n})"
+                            ]
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/groups/?page=2.4&per_page=5,5",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "groups",
+                            ""
+                          ],
+                          "query": [
+                            {
+                              "key": "page",
+                              "value": "2.4"
+                            },
+                            {
+                              "key": "per_page",
+                              "value": "5,5"
+                            }
+                          ]
+                        }
+                      },
+                      "response": []
+                    }
+                  ]
+                },
+                {
+                  "name": "sort",
+                  "item": [
+                    {
+                      "name": "name ASC",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "type": "text/javascript",
+                            "exec": [
+                              "pm.test(\"Groups sorted by name ASC\", () => {\n    const response = pm.response.json();\n    const names = response.items.map(item => item.name);\n\n    const sortedNames = [...names].sort((a, b) =>\n        a.localeCompare(b, 'ru')\n    );\n\n    pm.expect(names).to.eql(sortedNames);\n});"
+                            ]
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/groups/?sort_by=name&sort_order=asc",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "groups",
+                            ""
+                          ],
+                          "query": [
+                            {
+                              "key": "sort_by",
+                              "value": "name"
+                            },
+                            {
+                              "key": "sort_order",
+                              "value": "asc"
+                            }
+                          ]
+                        }
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "name DESC",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "type": "text/javascript",
+                            "exec": [
+                              "pm.test(\"Groups sorted by name DESC\", () => {\n    const response = pm.response.json();\n    const names = response.items.map(item => item.name);\n\n    const sortedNames = [...names].sort((a, b) =>\n        b.localeCompare(a, 'ru')\n    );\n\n    pm.expect(names).to.eql(sortedNames);\n});"
+                            ]
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/groups/?sort_by=name&sort_order=desc",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "groups",
+                            ""
+                          ],
+                          "query": [
+                            {
+                              "key": "sort_by",
+                              "value": "name"
+                            },
+                            {
+                              "key": "sort_order",
+                              "value": "desc"
+                            }
+                          ]
+                        }
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "wrong param sort_by",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "type": "text/javascript",
+                            "exec": [
+                              "pm.test('400 BAD_REQUEST', () => {\n    pm.response.to.have.status(400)\n    pm.expect(pm.response.json().error_code).to.eql('BAD_REQUEST')\n    }\n);"
+                            ]
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/groups/?sort_by=2&sort_order=asc",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "groups",
+                            ""
+                          ],
+                          "query": [
+                            {
+                              "key": "sort_by",
+                              "value": "2"
+                            },
+                            {
+                              "key": "sort_order",
+                              "value": "asc"
+                            }
+                          ]
+                        }
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "wrong param sort_order",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "type": "text/javascript",
+                            "exec": [
+                              "pm.test('400 VALIDATION_ERROR', () => {\n    pm.response.to.have.status(400)\n    pm.expect(pm.response.json().error_code).to.eql('VALIDATION_ERROR')\n    }\n);"
+                            ]
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/groups/?sort_by=name&sort_order=1",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "groups",
+                            ""
+                          ],
+                          "query": [
+                            {
+                              "key": "sort_by",
+                              "value": "name"
+                            },
+                            {
+                              "key": "sort_order",
+                              "value": "1"
+                            }
+                          ]
+                        }
+                      },
+                      "response": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "One",
+              "item": [
+                {
+                  "name": "Get by id",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "pm.test('200 OK', () => pm.response.to.have.status(200));\npm.test('same id', () => pm.expect(pm.response.json().id).to.eql(Number(pm.collectionVariables.get('group_id'))));"
+                        ]
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/groups/{{group_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "groups",
+                        "{{group_id}}"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Get by id — 404",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "pm.test('404 No Content', () => {\r\n    pm.response.to.have.status(404)\r\n    pm.expect(pm.response.json().error_code).to.eql('NOT_FOUND')\r\n    }\r\n);"
+                        ]
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/groups/999999",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "groups",
+                        "999999"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Put/Patch",
+          "item": [
+            {
+              "name": "Put",
+              "item": [
+                {
+                  "name": "upper limit",
+                  "item": [
+                    {
+                      "name": "200",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "type": "text/javascript",
+                            "exec": [
+                              "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                            ]
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "PUT",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"name\": {{100 symbols}}\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/groups/{{group_id}}",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "groups",
+                            "{{group_id}}"
+                          ]
+                        }
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "400",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "type": "text/javascript",
+                            "exec": [
+                              "pm.test('400 VALIDATION_ERROR', () => {\n    pm.response.to.have.status(400)\n    pm.expect(pm.response.json().error_code).to.eql('VALIDATION_ERROR')\n    }\n);\n\npm.test('Validation error message right fields', () => {\n    const responseBody = pm.response.json();\n    fields = responseBody.fields\n    pm.expect(fields).to.have.members([\n        \"name\"\n    ]);\n})"
+                            ]
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "PUT",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"name\": {{101 symbols}}\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/groups/{{group_id}}",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "groups",
+                            "{{group_id}}"
+                          ]
+                        }
+                      },
+                      "response": []
+                    }
+                  ]
+                },
+                {
+                  "name": "lower limit",
+                  "item": [
+                    {
+                      "name": "200",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "type": "text/javascript",
+                            "exec": [
+                              "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                            ]
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "PUT",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"name\": {{3 symbols}}\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/groups/{{group_id}}",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "groups",
+                            "{{group_id}}"
+                          ]
+                        }
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "400",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "type": "text/javascript",
+                            "exec": [
+                              "pm.test('400 VALIDATION_ERROR', () => {\n    pm.response.to.have.status(400)\n    pm.expect(pm.response.json().error_code).to.eql('VALIDATION_ERROR')\n    }\n);\n\npm.test('Validation error message right fields', () => {\n    const responseBody = pm.response.json();\n    fields = responseBody.fields\n    pm.expect(fields).to.have.members([\n        \"name\"\n    ]);\n})"
+                            ]
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "PUT",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"name\": {{2 symbols}}\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/groups/{{group_id}}",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "groups",
+                            "{{group_id}}"
+                          ]
+                        }
+                      },
+                      "response": []
+                    }
+                  ]
+                },
+                {
+                  "name": "200 + Response Body",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "pm.test('200 Response Body', () =>{\n    const response = pm.response.json();\n    pm.expect(response.name).to.eql('Новая группа');\n})"
+                        ]
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"Новая группа\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/groups/{{group_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "groups",
+                        "{{group_id}}"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "void information",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "pm.test('400 VALIDATION_ERROR', () => {\n    pm.response.to.have.status(400)\n    pm.expect(pm.response.json().error_code).to.eql('VALIDATION_ERROR')\n    }\n);\n\npm.test('Validation error message right fields', () => {\n    const responseBody = pm.response.json();\n    fields = responseBody.fields\n    pm.expect(fields).to.have.members([\n        \"name\"\n    ]);\n})\n"
+                        ]
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/groups/{{group_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "groups",
+                        "{{group_id}}"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "404",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "pm.test('404 No Content', () => {\n    pm.response.to.have.status(404)\n    pm.expect(pm.response.json().error_code).to.eql('NOT_FOUND')\n    }\n);"
+                        ]
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"Новая группа\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/groups/0",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "groups",
+                        "0"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "Patch",
+              "item": [
+                {
+                  "name": "PATCH (partial)",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "pm.test('200 OK', () => pm.response.to.have.status(200));\npm.test('name updated', () => pm.expect(pm.response.json().name).to.eql('Изменено'));"
+                        ]
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "PATCH",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"Изменено\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/groups/{{group_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "groups",
+                        "{{group_id}}"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "404",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "pm.test('404 No Content', () => {\n    pm.response.to.have.status(404)\n    pm.expect(pm.response.json().error_code).to.eql('NOT_FOUND')\n    }\n);"
+                        ]
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "PATCH",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"Изменено\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/groups/0",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "groups",
+                        "0"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Delete",
+          "item": [
+            {
+              "name": "DELETE (204)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('204 No Content', () => pm.response.to.have.status(204));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/groups/{{group_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "groups",
+                    "{{group_id}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "404",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('404 No Content', () => {\r\n    pm.response.to.have.status(404)\r\n    pm.expect(pm.response.json().error_code).to.eql('NOT_FOUND')\r\n    }\r\n);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/groups/0",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "groups",
+                    "0"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "tx_id",
+      "value": ""
+    },
+    {
+      "key": "group_id",
+      "value": ""
+    },
+    {
+      "key": "101 symbols",
+      "value": ""
+    },
+    {
+      "key": "100 symbols",
+      "value": ""
+    },
+    {
+      "key": "256 symbols",
+      "value": ""
+    },
+    {
+      "key": "255 symbols",
+      "value": ""
+    },
+    {
+      "key": "3 symbols",
+      "value": ""
+    },
+    {
+      "key": "2 symbols",
+      "value": ""
+    }
+  ]
+}
