@@ -1,0 +1,447 @@
+{
+  "info": {
+    "name": "Finance API CRUD",
+    "description": "CRUD + Auth для проекта учёта расходов",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8000" },
+    { "key": "token", "value": "" },
+    { "key": "tx_id", "value": "" },
+    { "key": "group_id", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('201/200 Created', () => pm.response.to.have.status(200));",
+                "pm.test('has id', () => pm.expect(pm.response.json()).to.have.property('id'));"
+              ]
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/auth/register", "host": ["{{base_url}}"], "path": ["auth","register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"demo\",\n  \"password\": \"demo123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Login (save token)",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                "pm.test('has token', () => pm.expect(pm.response.json()).to.have.property('token'));",
+                "pm.collectionVariables.set('token', pm.response.json().token);"
+              ]
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth","login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"demo\",\n  \"password\": \"demo123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Refresh token",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/auth/refresh", "host": ["{{base_url}}"], "path": ["auth","refresh"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Transactions",
+      "item": [
+        {
+          "name": "Create (201, save id)",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('201 Created', () => pm.response.to.have.status(201));",
+                "const j = pm.response.json();",
+                "pm.expect(j).to.include.keys('id','title','type','category','amount','created_at');",
+                "pm.collectionVariables.set('tx_id', j.id);"
+              ]
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/transactions/", "host": ["{{base_url}}"], "path": ["transactions",""] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Продукты\",\n  \"type\": \"expense\",\n  \"category\": \"Еда\",\n  \"amount\": 1500\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Create — validation error (422)",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('422 Unprocessable', () => pm.response.to.have.status(422));"
+              ]
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/transactions/", "host": ["{{base_url}}"], "path": ["transactions",""] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"\",\n  \"type\": \"wrong\",\n  \"category\": \"\",\n  \"amount\": -5\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "List (pagination)",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                "pm.test('array', () => pm.expect(pm.response.json()).to.be.an('array'));"
+              ]
+            }
+          }],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/transactions/?limit=10&offset=0",
+              "host": ["{{base_url}}"],
+              "path": ["transactions",""],
+              "query": [
+                { "key": "limit", "value": "10" },
+                { "key": "offset", "value": "0" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List (filter category+date)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/transactions/?category=Еда&dt_from=2026-01-01T00:00:00&dt_to=2026-12-31T23:59:59",
+              "host": ["{{base_url}}"],
+              "path": ["transactions",""],
+              "query": [
+                { "key": "category", "value": "Еда" },
+                { "key": "dt_from", "value": "2026-01-01T00:00:00" },
+                { "key": "dt_to", "value": "2026-12-31T23:59:59" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get by id",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                "pm.test('same id', () => pm.expect(pm.response.json().id).to.eql(Number(pm.collectionVariables.get('tx_id'))));"
+              ]
+            }
+          }],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/transactions/{{tx_id}}", "host": ["{{base_url}}"], "path": ["transactions","{{tx_id}}"] }
+          }
+        },
+        {
+          "name": "Get by id — 404",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('404 Not Found', () => pm.response.to.have.status(404));"
+              ]
+            }
+          }],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/transactions/999999", "host": ["{{base_url}}"], "path": ["transactions","999999"] }
+          }
+        },
+        {
+          "name": "PUT (full replace)",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                "pm.test('title replaced', () => pm.expect(pm.response.json().title).to.eql('Новое имя'));"
+              ]
+            }
+          }],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/transactions/{{tx_id}}", "host": ["{{base_url}}"], "path": ["transactions","{{tx_id}}"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Новое имя\",\n  \"type\": \"income\",\n  \"category\": \"Работа\",\n  \"amount\": 50000\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "PATCH (partial)",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                "pm.test('amount updated', () => pm.expect(pm.response.json().amount).to.eql(777));"
+              ]
+            }
+          }],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/transactions/{{tx_id}}", "host": ["{{base_url}}"], "path": ["transactions","{{tx_id}}"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 777\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "DELETE (204)",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('204 No Content', () => pm.response.to.have.status(204));",
+                "pm.test('empty body', () => pm.expect(pm.response.text()).to.eql(''));"
+              ]
+            }
+          }],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/transactions/{{tx_id}}", "host": ["{{base_url}}"], "path": ["transactions","{{tx_id}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Groups",
+      "item": [
+        {
+          "name": "Create (201, save id)",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('201 Created', () => pm.response.to.have.status(201));",
+                "pm.collectionVariables.set('group_id', pm.response.json().id);"
+              ]
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/groups/", "host": ["{{base_url}}"], "path": ["groups",""] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Семья\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "List (pagination)",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                "pm.test('array', () => pm.expect(pm.response.json()).to.be.an('array'));"
+              ]
+            }
+          }],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/groups/?limit=10&offset=0",
+              "host": ["{{base_url}}"],
+              "path": ["groups",""],
+              "query": [
+                { "key": "limit", "value": "10" },
+                { "key": "offset", "value": "0" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get by id",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                "pm.test('same id', () => pm.expect(pm.response.json().id).to.eql(Number(pm.collectionVariables.get('group_id'))));"
+              ]
+            }
+          }],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/groups/{{group_id}}", "host": ["{{base_url}}"], "path": ["groups","{{group_id}}"] }
+          }
+        },
+        {
+          "name": "Get by id — 404",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('404 Not Found', () => pm.response.to.have.status(404));"
+              ]
+            }
+          }],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/groups/999999", "host": ["{{base_url}}"], "path": ["groups","999999"] }
+          }
+        },
+        {
+          "name": "PUT (full replace)",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                "pm.test('name replaced', () => pm.expect(pm.response.json().name).to.eql('Новая группа'));"
+              ]
+            }
+          }],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/groups/{{group_id}}", "host": ["{{base_url}}"], "path": ["groups","{{group_id}}"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Новая группа\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "PATCH (partial)",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                "pm.test('name updated', () => pm.expect(pm.response.json().name).to.eql('Изменено'));"
+              ]
+            }
+          }],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/groups/{{group_id}}", "host": ["{{base_url}}"], "path": ["groups","{{group_id}}"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Изменено\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "DELETE (204)",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('204 No Content', () => pm.response.to.have.status(204));"
+              ]
+            }
+          }],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/groups/{{group_id}}", "host": ["{{base_url}}"], "path": ["groups","{{group_id}}"] }
+          }
+        }
+      ]
+    }
+  ]
+}
