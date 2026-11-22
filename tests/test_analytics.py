@@ -194,7 +194,7 @@ async def test_timeline_rejects_invalid_granularity(
         "/analytics/timeline",
         params={"granularity": "year"},
     )
-    assert response.status_code == 422
+    assert response.status_code == 400
 
 
 async def test_timeline_chart_rejects_invalid_kind(
@@ -204,4 +204,4 @@ async def test_timeline_chart_rejects_invalid_kind(
         "/analytics/timeline/chart.png",
         params={"kind": "pie"},
     )
-    assert response.status_code == 422
+    assert response.status_code == 400

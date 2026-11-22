@@ -32,11 +32,11 @@ async def test_create_group_returns_correct_fields(
     assert "owner_id" in data
 
 
-async def test_create_group_missing_name_returns_422(
+async def test_create_group_missing_name_returns_400(
     client: AsyncClient, user,
 ) -> None:
     response = await client.post("/groups/", json={})
-    assert response.status_code == 422
+    assert response.status_code == 400
 
 
 async def test_get_groups_returns_all(

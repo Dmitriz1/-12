@@ -42,14 +42,14 @@ async def test_create_income_returns_correct_fields(
     assert data["type"] == "income"
     assert data["amount"] == 80000.0
 
-async def test_create_transaction_missing_fields_returns_422(
+async def test_create_transaction_missing_fields_returns_400(
     client: AsyncClient, user,
 ) -> None:
     response = await client.post(
         "/transactions/",
         json={"title": "Без суммы", "type": "expense", "category": "Еда"},
     )
-    assert response.status_code == 422
+    assert response.status_code == 400
 
 
 async def test_get_transactions_returns_all(

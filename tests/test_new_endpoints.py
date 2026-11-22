@@ -92,9 +92,9 @@ async def test_search_by_category(client: AsyncClient, make_tx: MakeTx) -> None:
     assert data["items"][0]["category"] == "Рестораны"
 
 
-async def test_search_too_short_returns_422(client: AsyncClient, user) -> None:
+async def test_search_too_short_returns_400(client: AsyncClient, user) -> None:
     response = await client.get("/transactions/", params={"search": "а"})
-    assert response.status_code == 422
+    assert response.status_code == 400
     assert response.json()["error_code"] == "VALIDATION_ERROR"
 
 
@@ -201,6 +201,16 @@ async def test_analytics_top_categories(client: AsyncClient, make_tx: MakeTx) ->
 
 
 # --- Экспорт ---
+
+async def test_malformed_json_body_returns_400_not_500(client: AsyncClient, user) -> None:
+    response = await client.post(
+        "/transactions/",
+        content=b'{"title": ,"type":"expense"}',
+        headers={"Content-Type": "application/json"},
+    )
+    assert response.status_code == 400
+    assert response.json()["error_code"] == "VALIDATION_ERROR"
+
 
 async def test_export_csv_returns_rows(client: AsyncClient, make_tx: MakeTx) -> None:
     await make_tx("Продукты", "expense", "Еда", 1000, datetime(2026, 5, 1, 12))

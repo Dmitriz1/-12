@@ -23,9 +23,9 @@ async def test_register_duplicate_returns_409(client: AsyncClient) -> None:
     assert response.json()["error_code"] == "CONFLICT"
 
 
-async def test_register_missing_fields_returns_422(client: AsyncClient) -> None:
+async def test_register_missing_fields_returns_400(client: AsyncClient) -> None:
     response = await client.post("/auth/register", json={"username": "carol"})
-    assert response.status_code == 422
+    assert response.status_code == 400
 
 
 async def test_login_success_returns_token(client: AsyncClient) -> None:

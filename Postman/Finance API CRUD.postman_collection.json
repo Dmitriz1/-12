@@ -128,7 +128,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"username\": \"demo\",\n  \"password\": \"demo123\"\n}",
+                  "raw": "{\n  \"username\": \"demo123\",\n  \"password\": \"demo123\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1569,7 +1569,7 @@
                           "script": {
                             "type": "text/javascript",
                             "exec": [
-                              "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\n\r\npm.test(\"Found items contain search text in title or category\", () => {\r\n    const response = pm.response.json();\r\n    pm.expect(response.total).to.be.above(0);\r\n    response.items.forEach((item) => {\r\n        const inTitle = item.title.toLowerCase().includes(\"кафе\");\r\n        const inCategory = item.category.toLowerCase().includes(\"кафе\");\r\n        pm.expect(inTitle || inCategory).to.be.true;\r\n    })\r\n})"
+                              "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\n\r\npm.test(\"Found items contain search text in title or category\", () => {\r\n    const response = pm.response.json();\r\n    pm.expect(response.total).to.be.above(0);\r\n    response.items.forEach((item) => {\r\n        const inTitle = item.title.toLowerCase().includes(\"продукты\");\r\n        const inCategory = item.category.toLowerCase().includes(\"продукты\");\r\n        pm.expect(inTitle || inCategory).to.be.true;\r\n    })\r\n})"
                             ]
                           }
                         }
@@ -1583,7 +1583,7 @@
                           }
                         ],
                         "url": {
-                          "raw": "{{base_url}}/transactions/?search=Кафе",
+                          "raw": "{{base_url}}/transactions/?search=Продукты",
                           "host": [
                             "{{base_url}}"
                           ],
@@ -1594,7 +1594,7 @@
                           "query": [
                             {
                               "key": "search",
-                              "value": "Кафе"
+                              "value": "Продукты"
                             }
                           ]
                         }
@@ -1642,14 +1642,14 @@
                       "response": []
                     },
                     {
-                      "name": "GET search too short (422)",
+                      "name": "GET search too short (400)",
                       "event": [
                         {
                           "listen": "test",
                           "script": {
                             "type": "text/javascript",
                             "exec": [
-                              "pm.test(\"Status code is 422\", () => pm.response.to.have.status(422));\r\n\r\npm.test(\"Error code is VALIDATION_ERROR\", () => {\r\n    pm.expect(pm.response.json().error_code).to.equal(\"VALIDATION_ERROR\");\r\n})"
+                              "pm.test(\"Status code is 400\", () => pm.response.to.have.status(400));\r\n\r\npm.test(\"Error code is VALIDATION_ERROR\", () => {\r\n    pm.expect(pm.response.json().error_code).to.equal(\"VALIDATION_ERROR\");\r\n})"
                             ]
                           }
                         }
@@ -1791,7 +1791,7 @@
                           }
                         ],
                         "url": {
-                          "raw": "{{base_url}}/transactions/?search=Кафе&type=expense&sort_by=amount&sort_order=desc&page=1&per_page=5",
+                          "raw": "{{base_url}}/transactions/?search=Продукты&type=expense&sort_by=amount&sort_order=desc&page=1&per_page=5",
                           "host": [
                             "{{base_url}}"
                           ],
@@ -1802,7 +1802,7 @@
                           "query": [
                             {
                               "key": "search",
-                              "value": "Кафе"
+                              "value": "Продукты"
                             },
                             {
                               "key": "type",
@@ -3205,7 +3205,7 @@
                           "script": {
                             "type": "text/javascript",
                             "exec": [
-                              "pm.test(\"Groups sorted by name ASC\", () => {\n    const response = pm.response.json();\n    const names = response.items.map(item => item.name);\n\n    const sortedNames = [...names].sort((a, b) =>\n        a.localeCompare(b, 'ru')\n    );\n\n    pm.expect(names).to.eql(sortedNames);\n});"
+                              "pm.test(\"Groups sorted by name ASC\", () => {\n    const response = pm.response.json();\n    const names = response.items.map(item => item.name);\n\n    const sortedNames = [...names].sort((a, b) =>\n        a < b ? -1 : 1\n    );\n\n    pm.expect(names).to.eql(sortedNames);\n});"
                             ]
                           }
                         }
@@ -3249,7 +3249,7 @@
                           "script": {
                             "type": "text/javascript",
                             "exec": [
-                              "pm.test(\"Groups sorted by name DESC\", () => {\n    const response = pm.response.json();\n    const names = response.items.map(item => item.name);\n\n    const sortedNames = [...names].sort((a, b) =>\n        b.localeCompare(a, 'ru')\n    );\n\n    pm.expect(names).to.eql(sortedNames);\n});"
+                              "pm.test(\"Groups sorted by name DESC\", () => {\n    const response = pm.response.json();\n    const names = response.items.map(item => item.name);\n\n    const sortedNames = [...names].sort((a, b) =>\n        b < a ? -1 : 1\n    );\n\n    pm.expect(names).to.eql(sortedNames);\n});"
                             ]
                           }
                         }
@@ -4079,27 +4079,27 @@
     },
     {
       "key": "101 symbols",
-      "value": ""
+      "value": "\"ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\""
     },
     {
       "key": "100 symbols",
-      "value": ""
+      "value": "\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\""
     },
     {
       "key": "256 symbols",
-      "value": ""
+      "value": "\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\""
     },
     {
       "key": "255 symbols",
-      "value": ""
+      "value": "\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\""
     },
     {
       "key": "3 symbols",
-      "value": ""
+      "value": "\"abc\""
     },
     {
       "key": "2 symbols",
-      "value": ""
+      "value": "\"ab\""
     }
   ]
 }
