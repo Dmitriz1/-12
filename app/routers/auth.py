@@ -11,6 +11,7 @@ from app.schemas.user import (
     UserRegister,
 )
 from app.services.auth_service import AuthService
+from app.exceptions.custom_exceptions import UnauthorizedError
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -21,10 +22,7 @@ async def auth_required(db: AsyncSession = Depends(get_db)) -> int:
     result = await db.execute(select(User))
     user = result.scalars().first()
     if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="No users registered",
-        )
+        raise UnauthorizedError("Invalid or expired token")
     return user.id
 
 

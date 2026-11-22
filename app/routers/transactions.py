@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Literal, Optional
 
 import openpyxl
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Query, HTTPException
 from fastapi.responses import StreamingResponse
 
 from app.routers.auth import auth_required
@@ -12,6 +12,7 @@ from app.schemas.transaction import (
     TransactionCreate,
     TransactionResponse,
     TransactionUpdate,
+    TransactionResponseMetaData
 )
 from app.services.transaction_service import TransactionService
 
@@ -36,25 +37,31 @@ async def create(
 
 @router.get(
     "/",
-    response_model=list[TransactionResponse],
-    summary="Список транзакций (пагинация + фильтры)",
+    response_model=TransactionResponseMetaData,
+    summary="Список транзакций (пагинация + сортировка + фильтры + метаданные)",
 )
 async def get_all(
     service: TransactionService = Depends(),
     user_id: int = Depends(auth_required),
+    page: int = Query(1, ge=1),
+    per_page: int = Query(25, ge=1, le=100),
+    sort_by: str = Query("created_at", description="Поле сортировки"),
+    sort_order: str = Query("desc", regex="^(asc|desc)$"),
     category: Optional[str] = None,
     dt_from: Optional[datetime] = None,
     dt_to: Optional[datetime] = None,
-    limit: int = 100,
-    offset: int = 0,
-):
+    type: Optional[str] = Query(None, regex="^(income|expense)$"),
+):    
     return await service.get_transactions(
         user_id,
         category=category,
         dt_from=dt_from,
         dt_to=dt_to,
-        limit=limit,
-        offset=offset,
+        type=type,
+        sort_by=sort_by,
+        sort_order=sort_order,
+        page=page,
+        per_page=per_page
     )
 
 

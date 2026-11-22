@@ -7,9 +7,12 @@ from app.core.cache import cache
 from app.core.redis import redis_client
 from app.models.transaction import Transaction
 from app.repositories.transactionrepo import TransactionRepository
-
+from app.schemas.transaction import TransactionResponseMetaData
+from app.exceptions.custom_exceptions import NotFoundError, BadRequestError
 
 class TransactionService:
+    allowed_sort_fields = ["id", "title", "category", "amount", "created_at"]
+
     def __init__(self, tx_repo: TransactionRepository = Depends()):
         self.tx_repo = tx_repo
 
@@ -22,21 +25,32 @@ class TransactionService:
     async def get_transactions(
         self,
         user_id: int,
+        page: int,
+        per_page: int,
+        sort_by: str,
+        sort_order: str,
+        type: Optional[str] = None,
         category: Optional[str] = None,
         dt_from: Optional[datetime] = None,
         dt_to: Optional[datetime] = None,
-        limit: int = 100,
-        offset: int = 0,
-    ) -> list[dict]:
-        txs = await self.tx_repo.get_all_transactions(
+    ) -> TransactionResponseMetaData:
+        if sort_by not in self.allowed_sort_fields:
+            raise BadRequestError(f"invalid sort field {sort_by}", "sort_by")
+        
+        transactions, total = await self.tx_repo.get_all_transactions(
             user_id,
             category=category,
             dt_from=dt_from,
             dt_to=dt_to,
-            limit=limit,
-            offset=offset,
+            type=type,
+            page=page,
+            per_page=per_page,
+            sort_by=sort_by,
+            sort_order=sort_order
         )
-        return [
+        return {
+        "items":
+        [
             {
                 "id": t.id,
                 "title": t.title,
@@ -45,16 +59,18 @@ class TransactionService:
                 "amount": t.amount,
                 "created_at": t.created_at,
             }
-            for t in txs
-        ]
+            for t in transactions
+        ],
+        "total": total,
+        "page": page,
+        "per_page": per_page,
+        "total_pages": (total + per_page - 1) // per_page
+        }
 
     async def get_transaction(self, tx_id: int, user_id: int) -> Transaction:
         tx = await self.tx_repo.get_by_id(tx_id, user_id)
         if tx is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Transaction not found",
-            )
+            raise NotFoundError("Transaction", tx_id)
         return tx
 
     async def replace_transaction(
@@ -62,10 +78,7 @@ class TransactionService:
     ) -> Transaction:
         updated = await self.tx_repo.update(data, tx_id, user_id)
         if updated is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Transaction not found",
-            )
+            raise NotFoundError("Transaction", tx_id)
         await redis_client.flushdb()
         return updated
 
@@ -74,18 +87,12 @@ class TransactionService:
     ) -> Transaction:
         updated = await self.tx_repo.update(data, tx_id, user_id)
         if updated is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Transaction not found",
-            )
+            raise NotFoundError("Transaction", tx_id)
         await redis_client.flushdb()
         return updated
 
     async def delete_transaction(self, tx_id: int, user_id: int) -> None:
         deleted = await self.tx_repo.delete(tx_id, user_id)
         if not deleted:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Transaction not found",
-            )
+            raise NotFoundError("Transaction", tx_id)
         await redis_client.flushdb()
