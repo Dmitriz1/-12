@@ -33,10 +33,15 @@ class TransactionService:
         category: Optional[str] = None,
         dt_from: Optional[datetime] = None,
         dt_to: Optional[datetime] = None,
+        search: Optional[str] = None,
+        min_amount: Optional[float] = None,
+        max_amount: Optional[float] = None,
     ) -> TransactionResponseMetaData:
         if sort_by not in self.allowed_sort_fields:
             raise BadRequestError(f"invalid sort field {sort_by}", "sort_by")
-        
+        if min_amount is not None and max_amount is not None and min_amount > max_amount:
+            raise BadRequestError("min_amount must be less than or equal to max_amount", "min_amount")
+
         transactions, total = await self.tx_repo.get_all_transactions(
             user_id,
             category=category,
@@ -46,7 +51,10 @@ class TransactionService:
             page=page,
             per_page=per_page,
             sort_by=sort_by,
-            sort_order=sort_order
+            sort_order=sort_order,
+            search=search,
+            min_amount=min_amount,
+            max_amount=max_amount,
         )
         return {
         "items":
@@ -66,6 +74,28 @@ class TransactionService:
         "per_page": per_page,
         "total_pages": (total + per_page - 1) // per_page
         }
+
+    async def get_transactions_for_export(
+        self,
+        user_id: int,
+        category: Optional[str] = None,
+        dt_from: Optional[datetime] = None,
+        dt_to: Optional[datetime] = None,
+    ) -> list[dict]:
+        transactions = await self.tx_repo.get_for_export(
+            user_id, category=category, dt_from=dt_from, dt_to=dt_to
+        )
+        return [
+            {
+                "id": t.id,
+                "title": t.title,
+                "type": t.type,
+                "category": t.category,
+                "amount": t.amount,
+                "created_at": t.created_at,
+            }
+            for t in transactions
+        ]
 
     async def get_transaction(self, tx_id: int, user_id: int) -> Transaction:
         tx = await self.tx_repo.get_by_id(tx_id, user_id)

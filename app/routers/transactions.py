@@ -38,7 +38,7 @@ async def create(
 @router.get(
     "/",
     response_model=TransactionResponseMetaData,
-    summary="Список транзакций (пагинация + сортировка + фильтры + метаданные)",
+    summary="Список транзакций (пагинация + сортировка + фильтры + поиск + метаданные)",
 )
 async def get_all(
     service: TransactionService = Depends(),
@@ -46,12 +46,15 @@ async def get_all(
     page: int = Query(1, ge=1),
     per_page: int = Query(25, ge=1, le=100),
     sort_by: str = Query("created_at", description="Поле сортировки"),
-    sort_order: str = Query("desc", regex="^(asc|desc)$"),
+    sort_order: str = Query("desc", pattern="^(asc|desc)$"),
     category: Optional[str] = None,
     dt_from: Optional[datetime] = None,
     dt_to: Optional[datetime] = None,
-    type: Optional[str] = Query(None, regex="^(income|expense)$"),
-):    
+    type: Optional[str] = Query(None, pattern="^(income|expense)$"),
+    search: Optional[str] = Query(None, min_length=2),
+    min_amount: Optional[float] = Query(None, ge=0),
+    max_amount: Optional[float] = Query(None, ge=0),
+):
     return await service.get_transactions(
         user_id,
         category=category,
@@ -61,7 +64,10 @@ async def get_all(
         sort_by=sort_by,
         sort_order=sort_order,
         page=page,
-        per_page=per_page
+        per_page=per_page,
+        search=search,
+        min_amount=min_amount,
+        max_amount=max_amount,
     )
 
 
@@ -74,7 +80,7 @@ async def export(
     dt_from: Optional[datetime] = None,
     dt_to: Optional[datetime] = None,
 ):
-    rows = await service.get_transactions(
+    rows = await service.get_transactions_for_export(
         user_id,
         category=category,
         dt_from=dt_from,

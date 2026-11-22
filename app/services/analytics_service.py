@@ -86,3 +86,11 @@ class AnalyticsService:
 
     async def groups_analytics(self, user_id: int, dt_from: datetime, dt_to: datetime) -> list:
         return await self.repo.group_analytics(user_id, dt_from, dt_to)
+
+    async def summary(self, user_id: int, dt_from: datetime, dt_to: datetime) -> dict:
+        return await self.repo.summary(user_id, dt_from, dt_to)
+
+    async def top_categories(
+        self, user_id: int, dt_from: datetime, dt_to: datetime, type: str, limit: int
+    ) -> list:
+        return await self.repo.top_categories(user_id, dt_from, dt_to, type, limit)

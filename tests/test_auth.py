@@ -12,14 +12,15 @@ async def test_register_returns_id(client: AsyncClient) -> None:
     assert isinstance(data["id"], int)
 
 
-async def test_register_duplicate_returns_400(client: AsyncClient) -> None:
-    await client.post("/auth/register", json={"username": "bob", "password": "pass"})
+async def test_register_duplicate_returns_409(client: AsyncClient) -> None:
+    await client.post("/auth/register", json={"username": "bob", "password": "pass123"})
     response = await client.post(
         "/auth/register",
-        json={"username": "bob", "password": "pass"},
+        json={"username": "bob", "password": "pass123"},
     )
-    assert response.status_code == 400
+    assert response.status_code == 409
     assert response.json()["detail"] == "User already exists"
+    assert response.json()["error_code"] == "CONFLICT"
 
 
 async def test_register_missing_fields_returns_422(client: AsyncClient) -> None:
@@ -28,20 +29,20 @@ async def test_register_missing_fields_returns_422(client: AsyncClient) -> None:
 
 
 async def test_login_success_returns_token(client: AsyncClient) -> None:
-    await client.post("/auth/register", json={"username": "dave", "password": "1234"})
+    await client.post("/auth/register", json={"username": "dave", "password": "123456"})
     response = await client.post(
         "/auth/login",
-        json={"username": "dave", "password": "1234"},
+        json={"username": "dave", "password": "123456"},
     )
     assert response.status_code == 200
     assert "token" in response.json()
 
 
 async def test_login_wrong_password_returns_401(client: AsyncClient) -> None:
-    await client.post("/auth/register", json={"username": "eve", "password": "right"})
+    await client.post("/auth/register", json={"username": "eve", "password": "rightpass"})
     response = await client.post(
         "/auth/login",
-        json={"username": "eve", "password": "wrong"},
+        json={"username": "eve", "password": "wrongpass"},
     )
     assert response.status_code == 401
 

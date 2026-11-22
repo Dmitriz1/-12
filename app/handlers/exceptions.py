@@ -23,7 +23,7 @@ async def validation_error_handler(request: Request, exc: RequestValidationError
         fields = [error["loc"][-1] for error in errors]
     )
     return JSONResponse(
-        status_code=400,
+        status_code=422,
         content=response.model_dump()
     )
 

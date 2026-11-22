@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Literal, Optional
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from fastapi.responses import StreamingResponse
 
 from app.routers.auth import auth_required
@@ -101,3 +101,23 @@ async def groups_analytics(
     user_id: int = Depends(auth_required),
 ):
     return await service.groups_analytics(user_id, rng.dt_from, rng.dt_to)
+
+
+@router.get("/summary", summary="Статистика транзакций: count, sum, avg + группировки")
+async def summary(
+    rng: TimeRange = Depends(time_range),
+    service: AnalyticsService = Depends(),
+    user_id: int = Depends(auth_required),
+):
+    return await service.summary(user_id, rng.dt_from, rng.dt_to)
+
+
+@router.get("/top-categories", summary="Топ-N категорий по сумме за период")
+async def top_categories(
+    rng: TimeRange = Depends(time_range),
+    type: Literal["income", "expense"] = "expense",
+    limit: int = Query(5, ge=1, le=100),
+    service: AnalyticsService = Depends(),
+    user_id: int = Depends(auth_required),
+):
+    return await service.top_categories(user_id, rng.dt_from, rng.dt_to, type, limit)

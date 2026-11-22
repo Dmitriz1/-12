@@ -1557,6 +1557,279 @@
                       "response": []
                     }
                   ]
+                },
+                {
+                  "name": "search + amount range (ПЗ6)",
+                  "item": [
+                    {
+                      "name": "GET search by title (200)",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "type": "text/javascript",
+                            "exec": [
+                              "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\n\r\npm.test(\"Found items contain search text in title or category\", () => {\r\n    const response = pm.response.json();\r\n    pm.expect(response.total).to.be.above(0);\r\n    response.items.forEach((item) => {\r\n        const inTitle = item.title.toLowerCase().includes(\"кафе\");\r\n        const inCategory = item.category.toLowerCase().includes(\"кафе\");\r\n        pm.expect(inTitle || inCategory).to.be.true;\r\n    })\r\n})"
+                            ]
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/transactions/?search=Кафе",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "transactions",
+                            ""
+                          ],
+                          "query": [
+                            {
+                              "key": "search",
+                              "value": "Кафе"
+                            }
+                          ]
+                        }
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "GET search by category (200)",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "type": "text/javascript",
+                            "exec": [
+                              "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\n\r\npm.test(\"Every item matches category search\", () => {\r\n    const response = pm.response.json();\r\n    response.items.forEach((item) => {\r\n        pm.expect(item.category.toLowerCase()).to.include(\"лекарства\");\r\n    })\r\n})"
+                            ]
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/transactions/?search=Лекарства",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "transactions",
+                            ""
+                          ],
+                          "query": [
+                            {
+                              "key": "search",
+                              "value": "Лекарства"
+                            }
+                          ]
+                        }
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "GET search too short (422)",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "type": "text/javascript",
+                            "exec": [
+                              "pm.test(\"Status code is 422\", () => pm.response.to.have.status(422));\r\n\r\npm.test(\"Error code is VALIDATION_ERROR\", () => {\r\n    pm.expect(pm.response.json().error_code).to.equal(\"VALIDATION_ERROR\");\r\n})"
+                            ]
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/transactions/?search=а",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "transactions",
+                            ""
+                          ],
+                          "query": [
+                            {
+                              "key": "search",
+                              "value": "а"
+                            }
+                          ]
+                        }
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "GET amount range min+max (200)",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "type": "text/javascript",
+                            "exec": [
+                              "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\n\r\npm.test(\"Every item within amount range\", () => {\r\n    const response = pm.response.json();\r\n    response.items.forEach((item) => {\r\n        pm.expect(item.amount).to.be.at.least(100);\r\n        pm.expect(item.amount).to.be.at.most(1000);\r\n    })\r\n})"
+                            ]
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/transactions/?min_amount=100&max_amount=1000",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "transactions",
+                            ""
+                          ],
+                          "query": [
+                            {
+                              "key": "min_amount",
+                              "value": "100"
+                            },
+                            {
+                              "key": "max_amount",
+                              "value": "1000"
+                            }
+                          ]
+                        }
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "GET min_amount > max_amount (400)",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "type": "text/javascript",
+                            "exec": [
+                              "pm.test(\"Status code is 400\", () => pm.response.to.have.status(400));\r\n\r\npm.test(\"Error code is BAD_REQUEST\", () => {\r\n    pm.expect(pm.response.json().error_code).to.equal(\"BAD_REQUEST\");\r\n})"
+                            ]
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/transactions/?min_amount=1000&max_amount=100",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "transactions",
+                            ""
+                          ],
+                          "query": [
+                            {
+                              "key": "min_amount",
+                              "value": "1000"
+                            },
+                            {
+                              "key": "max_amount",
+                              "value": "100"
+                            }
+                          ]
+                        }
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "GET combined search+filter+sort+pagination (200)",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "type": "text/javascript",
+                            "exec": [
+                              "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\n\r\npm.test(\"Sorted by amount desc within page\", () => {\r\n    const response = pm.response.json();\r\n    for (let i = 1; i < response.items.length; i++) {\r\n        pm.expect(response.items[i-1].amount).to.be.at.least(response.items[i].amount);\r\n    }\r\n    pm.expect(response.items.length).to.be.at.most(5);\r\n})"
+                            ]
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/transactions/?search=Кафе&type=expense&sort_by=amount&sort_order=desc&page=1&per_page=5",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "transactions",
+                            ""
+                          ],
+                          "query": [
+                            {
+                              "key": "search",
+                              "value": "Кафе"
+                            },
+                            {
+                              "key": "type",
+                              "value": "expense"
+                            },
+                            {
+                              "key": "sort_by",
+                              "value": "amount"
+                            },
+                            {
+                              "key": "sort_order",
+                              "value": "desc"
+                            },
+                            {
+                              "key": "page",
+                              "value": "1"
+                            },
+                            {
+                              "key": "per_page",
+                              "value": "5"
+                            }
+                          ]
+                        }
+                      },
+                      "response": []
+                    }
+                  ]
                 }
               ]
             },
@@ -2205,6 +2478,46 @@
               "response": []
             }
           ]
+        },
+        {
+          "name": "GET export csv (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\n\r\npm.test(\"Body has csv header\", () => {\r\n    pm.expect(pm.response.text()).to.include(\"id,title,type,category,amount,created_at\");\r\n})"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/transactions/export?format=csv",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "transactions",
+                "export"
+              ],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "csv"
+                }
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -3659,6 +3972,90 @@
               "response": []
             }
           ]
+        }
+      ]
+    },
+    {
+      "name": "Analytics (ПЗ6)",
+      "item": [
+        {
+          "name": "GET summary (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\n\r\npm.test(\"Summary has aggregate fields\", () => {\r\n    const response = pm.response.json();\r\n    pm.expect(response).to.have.property(\"count\");\r\n    pm.expect(response).to.have.property(\"sum_amount\");\r\n    pm.expect(response).to.have.property(\"avg_amount\");\r\n    pm.expect(response).to.have.property(\"by_type\");\r\n    pm.expect(response).to.have.property(\"by_category\");\r\n})"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/analytics/summary",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "analytics",
+                "summary"
+              ],
+              "query": []
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET top-categories (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\n\r\npm.test(\"Top is ordered desc and limited\", () => {\r\n    const response = pm.response.json();\r\n    pm.expect(response.length).to.be.at.most(3);\r\n    for (let i = 1; i < response.length; i++) {\r\n        pm.expect(response[i-1].total).to.be.at.least(response[i].total);\r\n    }\r\n})"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/analytics/top-categories?type=expense&limit=3",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "analytics",
+                "top-categories"
+              ],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "expense"
+                },
+                {
+                  "key": "limit",
+                  "value": "3"
+                }
+              ]
+            }
+          },
+          "response": []
         }
       ]
     }
