@@ -8,7 +8,10 @@ from tests.conftest import MakeTx
 async def test_get_transactions_empty(client: AsyncClient, user) -> None:
     response = await client.get("/transactions/")
     assert response.status_code == 200
-    assert response.json() == []
+    data = response.json()
+    assert data["items"] == []
+    assert data["total"] == 0
+    assert data["total_pages"] == 0
 
 
 async def test_create_expense_returns_correct_fields(
@@ -39,14 +42,14 @@ async def test_create_income_returns_correct_fields(
     assert data["type"] == "income"
     assert data["amount"] == 80000.0
 
-async def test_create_transaction_missing_fields_returns_422(
+async def test_create_transaction_missing_fields_returns_400(
     client: AsyncClient, user,
 ) -> None:
     response = await client.post(
         "/transactions/",
         json={"title": "Без суммы", "type": "expense", "category": "Еда"},
     )
-    assert response.status_code == 422
+    assert response.status_code == 400
 
 
 async def test_get_transactions_returns_all(
@@ -56,7 +59,10 @@ async def test_get_transactions_returns_all(
     await make_tx("Зарплата", "income", "Работа", 50000, datetime(2026, 5, 5, 9))
     response = await client.get("/transactions/")
     assert response.status_code == 200
-    assert len(response.json()) == 2
+    data = response.json()
+    assert len(data["items"]) == 2
+    assert data["total"] == 2
+    assert data["total_pages"] == 1
 
 
 async def test_delete_transaction(
@@ -68,7 +74,7 @@ async def test_delete_transaction(
     assert response.content == b""
 
     remaining = await client.get("/transactions/")
-    assert all(t["id"] != tx.id for t in remaining.json())
+    assert all(t["id"] != tx.id for t in remaining.json()["items"])
 
 async def test_delete_nonexistent_returns_404(
     client: AsyncClient, user,

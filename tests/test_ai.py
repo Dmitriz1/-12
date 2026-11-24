@@ -31,7 +31,13 @@ async def test_recommendations_with_data_calls_groq(
         new_callable=AsyncMock,
         return_value=mock_response,
     ):
-        response = await client.get("/ai/recommendations")
+        response = await client.get(
+            "/ai/recommendations",
+            params={
+                "dt_from": "2026-05-01T00:00:00",
+                "dt_to": "2026-05-31T23:59:59",
+            },
+        )
 
     assert response.status_code == 200
     assert response.json()["recommendations"] == "Совет 1. Совет 2. Совет 3."

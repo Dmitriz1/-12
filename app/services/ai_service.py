@@ -8,7 +8,7 @@ from app.repositories.analytics_repo import AnalyticsRepository
 
 _GROQ_TOKEN = os.getenv("GROQ_TOKEN", "")
 _GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
-_GROQ_MODEL = "llama-3.1-8b-instant"
+_GROQ_MODEL = "openai/gpt-oss-120b"
 
 
 def _build_prompt(categories: list, total_expense: float, total_income: float) -> str:

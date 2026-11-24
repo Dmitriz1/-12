@@ -20,7 +20,7 @@ async def validation_error_handler(request: Request, exc: RequestValidationError
     response = ErrorResponse(
         detail = "validation error",
         error_code = "VALIDATION_ERROR",
-        fields = [error["loc"][-1] for error in errors]
+        fields = [str(error["loc"][-1]) for error in errors]
     )
     return JSONResponse(
         status_code=400,

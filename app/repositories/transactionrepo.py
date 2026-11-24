@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 
 from fastapi import Depends
-from sqlalchemy import select, func
+from sqlalchemy import select, func, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -31,6 +31,43 @@ class TransactionRepository:
         )
         return result.scalar_one_or_none()
 
+    def _filters(
+        self,
+        user_id: int,
+        type: Optional[str] = None,
+        category: Optional[str] = None,
+        dt_from: Optional[datetime] = None,
+        dt_to: Optional[datetime] = None,
+        search: Optional[str] = None,
+        min_amount: Optional[float] = None,
+        max_amount: Optional[float] = None,
+    ) -> list:
+        filters = [Transaction.user_id == user_id]
+        if type:
+            filters.append(Transaction.type == type)
+        if category:
+            filters.append(Transaction.category == category)
+        if dt_from:
+            filters.append(Transaction.created_at >= dt_from)
+        if dt_to:
+            filters.append(Transaction.created_at <= dt_to)
+        if min_amount is not None:
+            filters.append(Transaction.amount >= min_amount)
+        if max_amount is not None:
+            filters.append(Transaction.amount <= max_amount)
+        if search:
+            escaped = (
+                search.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+            )
+            pattern = f"%{escaped}%"
+            filters.append(
+                or_(
+                    Transaction.title.ilike(pattern, escape="\\"),
+                    Transaction.category.ilike(pattern, escape="\\"),
+                )
+            )
+        return filters
+
     async def get_all_transactions(
         self,
         user_id: int,
@@ -42,21 +79,20 @@ class TransactionRepository:
         category: Optional[str] = None,
         dt_from: Optional[datetime] = None,
         dt_to: Optional[datetime] = None,
+        search: Optional[str] = None,
+        min_amount: Optional[float] = None,
+        max_amount: Optional[float] = None,
     ) -> tuple[list[Transaction], int]:
-        query = select(Transaction).where(Transaction.user_id == user_id)
-        query_count = select(func.count(Transaction.id)).where(Transaction.user_id == user_id)
-        if type:
-            query = query.where(Transaction.type == type)
-            query_count = query_count.where(Transaction.type == type)
-        if category:
-            query = query.where(Transaction.category == category)
-            query_count = query_count.where(Transaction.category == category)    
-        if dt_from:
-            query = query.where(Transaction.created_at >= dt_from)
-            query_count = query_count.where(Transaction.created_at >= dt_from)
-        if dt_to:
-            query = query.where(Transaction.created_at <= dt_to)
-            query_count = query_count.where(Transaction.created_at <= dt_to)
+        filters = self._filters(
+            user_id,
+            type=type,
+            category=category,
+            dt_from=dt_from,
+            dt_to=dt_to,
+            search=search,
+            min_amount=min_amount,
+            max_amount=max_amount,
+        )
 
         sort_colums = {
             "id": Transaction.id,
@@ -66,15 +102,36 @@ class TransactionRepository:
             "created_at": Transaction.created_at
         }
         column = sort_colums[sort_by]
-        if sort_order == "desc":
-            query = query.order_by(column.desc())
-        else:
-            query = query.order_by(column.asc())
 
-        query = query.offset((page - 1) * per_page).limit(per_page)
+        total = await self.db.execute(
+            select(func.count(Transaction.id)).where(*filters)
+        )
+        query = (
+            select(Transaction)
+            .where(*filters)
+            .order_by(column.desc() if sort_order == "desc" else column.asc())
+            .offset((page - 1) * per_page)
+            .limit(per_page)
+        )
         result = await self.db.execute(query)
-        total = await self.db.execute(query_count)
         return list(result.scalars().all()), total.scalar_one()
+
+    async def get_for_export(
+        self,
+        user_id: int,
+        category: Optional[str] = None,
+        dt_from: Optional[datetime] = None,
+        dt_to: Optional[datetime] = None,
+    ) -> list[Transaction]:
+        filters = self._filters(
+            user_id, category=category, dt_from=dt_from, dt_to=dt_to
+        )
+        result = await self.db.execute(
+            select(Transaction)
+            .where(*filters)
+            .order_by(Transaction.created_at.desc())
+        )
+        return list(result.scalars().all())
 
     async def update(
         self, data: dict, tx_id: int, user_id: int

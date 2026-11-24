@@ -16,7 +16,9 @@ async def _make_group(db: AsyncSession, name: str, user: User) -> Group:
 async def test_get_groups_empty(client: AsyncClient, user) -> None:
     response = await client.get("/groups/")
     assert response.status_code == 200
-    assert response.json() == []
+    data = response.json()
+    assert data["items"] == []
+    assert data["total"] == 0
 
 
 async def test_create_group_returns_correct_fields(
@@ -30,11 +32,11 @@ async def test_create_group_returns_correct_fields(
     assert "owner_id" in data
 
 
-async def test_create_group_missing_name_returns_422(
+async def test_create_group_missing_name_returns_400(
     client: AsyncClient, user,
 ) -> None:
     response = await client.post("/groups/", json={})
-    assert response.status_code == 422
+    assert response.status_code == 400
 
 
 async def test_get_groups_returns_all(
@@ -44,7 +46,9 @@ async def test_get_groups_returns_all(
     await _make_group(db, "Друзья", user)
     response = await client.get("/groups/")
     assert response.status_code == 200
-    assert len(response.json()) == 2
+    data = response.json()
+    assert len(data["items"]) == 2
+    assert data["total"] == 2
 
 
 async def test_delete_group(
@@ -56,7 +60,7 @@ async def test_delete_group(
     assert response.content == b""
 
     remaining = await client.get("/groups/")
-    assert all(g["id"] != group.id for g in remaining.json())
+    assert all(g["id"] != group.id for g in remaining.json()["items"])
 
 
 async def test_delete_nonexistent_group_returns_404(
@@ -78,5 +82,5 @@ async def test_update_group_name(
 async def test_update_nonexistent_group_returns_404(
     client: AsyncClient, user,
 ) -> None:
-    response = await client.patch("/groups/99999", json={"name": "X"})
+    response = await client.patch("/groups/99999", json={"name": "ValidName"})
     assert response.status_code == 404
