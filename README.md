@@ -1,108 +1,150 @@
 # Приложение для отслеживания расходов
 
-FastAPI-приложение для управления личными финансами: учёт доходов и расходов, аналитика, визуализация, AI-рекомендации и CLI-интерфейс.
+Полный проект: React SPA-фронтенд (практика 7).
 
 ## Стек
 
-- **Backend**: FastAPI, SQLAlchemy (async), PostgreSQL, Redis
+- **Backend**: FastAPI, SQLAlchemy (async), PostgreSQL, Redis, Alembic
+- **Frontend**: React 18, TypeScript, Vite, React Router, Axios, CSS Modules
 - **Визуализация**: matplotlib (PNG), plotext (CLI)
-- **AI**: Groq API (Llama 3.1)
-- **Деплой**: Docker Compose
-- **Миграции**: Alembic
-- **Тесты**: pytest + pytest-asyncio + httpx
+- **AI**: Groq API (GPT-OSS 120B)
+- **Деплой**: Docker Compose (backend + frontend + db + redis)
+- **Тесты**: pytest (backend), Vitest + Testing Library (frontend)
 
-## Запуск
+## Структура
 
-1. Скопируй `.env.example` в `.env` и вставь Groq API ключ (бесплатно: https://console.groq.com/keys):
+```text
+.
+├── app/                    # FastAPI: routers, services, repositories, schemas
+├── migrations/             # Alembic
+├── tests/                  # pytest
+├── frontend/
+│   ├── public/
+│   └── src/
+│       ├── api/            # Axios-клиент и API-модули
+│       ├── assets/
+│       ├── components/
+│       │   ├── common/     # ProtectedRoute
+│       │   ├── layout/     # Layout, Header, Footer
+│       │   ├── transactions/ # BalanceSummary, TransactionForm, TransactionList
+│       │   └── ui/         # Button, ButtonLink, Input, Table, Spinner
+│       ├── context/        # AuthContext
+│       ├── hooks/          # useAuth, useTransactions, useAnalytics
+│       ├── pages/
+│       │   ├── Home/
+│       │   ├── Login/
+│       │   ├── Register/
+│       │   ├── Transactions/
+│       │   ├── Analytics/
+│       │   ├── Users/      # UsersList, UserForm (заготовки по ПЗ 7)
+│       │   └── NotFound.tsx
+│       ├── styles/         # global.css + общие CSS Modules
+│       ├── types/
+│       ├── utils/
+│       ├── App.tsx         # BrowserRouter в main.tsx, маршруты здесь
+│       └── main.tsx
+├── docker-compose.yml
+└── README.md
+```
+
+## Запуск через Docker Compose
+
+1. Создай `.env` из `.env.example` и при необходимости вставь `GROQ_TOKEN` (остальные значения нужны для запуска без Docker).
+2. Запусти стек:
+
+   ```bash
+   docker compose up --build
    ```
-   cp .env.example .env
-   ```
 
-2. Запусти через Docker Compose:
-   ```
-   docker compose up -d
-   ```
+3. Приложение:
 
-3. Применить миграции (при первом запуске):
-   ```
-   alembic upgrade head
-   ```
+   - Frontend: http://localhost:3000
+   - Backend API / Swagger: http://localhost:8000/docs
 
-4. Swagger-документация: http://localhost:8000/docs
+Для быстрой проверки можно зарегистрировать пользователя `demo` / `demo123` через форму регистрации.
 
-## Тестовые данные
+## Разработка без Docker
 
-Логин: `demo` / `demo123` (создаётся через `/auth/register`)
+### Backend
 
-## API
+```bash
+pip install -r requirements.txt
+cp .env.example .env
+# подними PostgreSQL и Redis, например: docker compose up -d db redis
+alembic upgrade head
+uvicorn app.main:app --reload
+```
 
-### Авторизация
+### Frontend
+
+```bash
+cd frontend
+npm ci
+cp .env.example .env   # VITE_API_BASE_URL=/api по умолчанию
+npm run dev
+```
+
+Vite поднимается на http://localhost:5173 и проксирует `/api` на `http://localhost:8000`.
+
+## Маршруты SPA
+
+| Путь | Страница |
+|------|----------|
+| `/` | Home |
+| `/login`, `/register` | Авторизация |
+| `/transactions` | Список транзакций, баланс, добавление/удаление (защищён) |
+| `/analytics` | Аналитика, графики и AI-рекомендации (защищён) |
+| `/users` | UsersList (заготовка, защищён) |
+| `/users/new` | UserForm — создание (заготовка, защищён) |
+| `/users/:id/edit` | UserForm — редактирование (заготовка, защищён) |
+| `*` | NotFound (404) |
+
+Навигация реализована через `Link` в `Header`; `Layout` содержит `Header`, `main` и `Footer`.
+
+## API (основное)
 
 | Метод | Путь | Описание |
 |-------|------|----------|
 | POST | `/auth/register` | Регистрация |
 | POST | `/auth/login` | Вход, возвращает токен |
-| POST | `/auth/change-password` | Смена пароля |
 | POST | `/auth/refresh` | Обновление токена |
-
-### Транзакции
-
-| Метод | Путь | Описание |
-|-------|------|----------|
-| GET | `/transactions/` | Список (фильтры: `category`, `dt_from`, `dt_to`, `limit`, `offset`) |
+| POST | `/auth/change-password` | Смена пароля |
+| GET | `/transactions/` | Список с пагинацией/фильтрами, возвращает `{ items, total, page, per_page, total_pages }` |
 | POST | `/transactions/` | Создание |
-| PATCH | `/transactions/{id}` | Редактирование |
-| DELETE | `/transactions/{id}` | Удаление |
-
-### Группы
-
-| Метод | Путь | Описание |
-|-------|------|----------|
-| GET | `/groups/` | Список групп |
-| POST | `/groups/` | Создание |
-| PATCH | `/groups/{id}` | Редактирование |
-| DELETE | `/groups/{id}` | Удаление |
-
-### Аналитика
-
-| Метод | Путь | Описание |
-|-------|------|----------|
-| GET | `/analytics/by-category` | Расходы по категориям (JSON) |
-| GET | `/analytics/by-category/chart.png` | Круговая диаграмма |
-| GET | `/analytics/timeline` | Динамика по времени (JSON) |
-| GET | `/analytics/timeline/chart.png` | График (`kind=line\|bar`, `granularity=day\|week\|month`) |
-| GET | `/analytics/groups` | Аналитика по группам |
-
-### AI
-
-| Метод | Путь | Описание |
-|-------|------|----------|
-| GET | `/ai/recommendations` | Персональные финансовые советы |
+| GET/PATCH/PUT/DELETE | `/transactions/{id}` | Работа с транзакцией |
+| GET | `/transactions/export?format=csv\|xlsx` | Экспорт |
+| GET | `/analytics/by-category`, `/analytics/timeline`, `/analytics/groups`, `/analytics/summary`, `/analytics/top-categories` | Аналитика |
+| GET | `/analytics/by-category/chart.png`, `/analytics/timeline/chart.png` | Графики PNG |
+| GET | `/ai/recommendations` | AI-рекомендации |
+| CRUD | `/groups/` | Группы |
 
 ## CLI
 
-```
+```bash
 python cli.py
 ```
 
-Возможности: просмотр транзакций, добавление, редактирование, удаление, аналитика, графики в терминале (plotext), AI-рекомендации.
+Доступны просмотр транзакций, добавление, редактирование, удаление, аналитика, экспорт и графики в терминале.
 
 ## Тесты
 
-```
+```bash
+# Backend (нужны PostgreSQL и Redis)
 DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/app pytest tests/
+
+# Frontend
+cd frontend && npm test
 ```
 
-70 тестов покрывают все эндпоинты.
+Backend-тесты используют ту же базу данных и очищают таблицы перед каждым тестом. После прогона тестов демо-пользователя `demo` / `demo123` нужно создать заново через форму регистрации.
 
-## Выполненные требования по ТЗ
+## Соответствие Practice_07_Frontend_Init
 
-- ✅ Модели данных: транзакции, группы, пользователи
-- ✅ Миграции (Alembic)
-- ✅ API: регистрация, аутентификация, смена пароля, обновление токена
-- ✅ API транзакций: CRUD, пагинация, фильтры по категории и дате
-- ✅ API групп: CRUD, аналитика по группам
-- ✅ Визуализация: круговая диаграмма, линейный и столбчатый графики
-- ✅ ИИ-функции: учёт доходов, персональные рекомендации (Groq/Llama 3.1)
-- ✅ Тесты для всех эндпоинтов
-- ✅ Docker Compose
+- React 18 + TypeScript + Vite
+- React Router: `BrowserRouter`, динамические маршруты, `ProtectedRoute`, `NotFound`
+- SPA с базовым `Layout` (`Header` + `Footer`)
+- Структура папок по слайду 5 (`api`, `components/ui|layout|common`, `pages`, `hooks`, `types`, `utils`)
+- CSS Modules вместо глобальных стилей компонентов
+- Переиспользуемые UI-компоненты: `Button` (primary/secondary/ghost/danger), `Input` (label + error), `Table` (универсальная), `Spinner`
+- Axios-клиент с интерцептором авторизации и единой обработкой ошибок
+- Готовый фундамент для интеграции с Backend API

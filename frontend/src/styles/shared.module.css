@@ -1,0 +1,41 @@
+.pageTitle {
+  margin-bottom: 24px;
+}
+
+.serverError {
+  color: var(--color-expense);
+  font-size: 0.8rem;
+}
+
+.emptyState {
+  text-align: center;
+  color: var(--color-text-secondary);
+  padding: 32px;
+}
+
+.amountIncome {
+  color: var(--color-income);
+  font-weight: 600;
+}
+
+.amountExpense {
+  color: var(--color-expense);
+  font-weight: 600;
+}
+
+.badge {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badgeIncome {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--color-income);
+}
+
+.badgeExpense {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--color-expense);
+}

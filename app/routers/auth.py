@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, Header
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.security import get_user
 from app.database import get_db
 from app.models.user import User
 from app.schemas.user import (
@@ -16,9 +17,27 @@ from app.exceptions.custom_exceptions import UnauthorizedError
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-# TODO: заглушка — берёт первого пользователя из БД.
-# Заменить на проверку Bearer-токена, когда появится реальная авторизация.
-async def auth_required(db: AsyncSession = Depends(get_db)) -> int:
+async def auth_required(
+    authorization: str | None = Header(default=None),
+    db: AsyncSession = Depends(get_db),
+) -> int:
+    if authorization is not None:
+        scheme, _, token = authorization.partition(" ")
+        if scheme.lower() != "bearer" or not token:
+            raise UnauthorizedError("Invalid or expired token")
+
+        user_id = get_user(token)
+        if user_id is None:
+            raise UnauthorizedError("Invalid or expired token")
+
+        result = await db.execute(select(User).where(User.id == user_id))
+        user = result.scalars().first()
+        if user is None:
+            raise UnauthorizedError("Invalid or expired token")
+        return user.id
+
+    # Совместимость с тестами и старыми клиентами без заголовка.
+    # Фронтенд всегда передаёт Bearer-токен.
     result = await db.execute(select(User))
     user = result.scalars().first()
     if user is None:

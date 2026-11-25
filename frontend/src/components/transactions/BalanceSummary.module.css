@@ -1,0 +1,49 @@
+.balance {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.balance__card {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-left: 4px solid var(--color-border);
+}
+
+.balance__card--income {
+  border-left-color: var(--color-income);
+}
+
+.balance__card--expense {
+  border-left-color: var(--color-expense);
+}
+
+.balance__card--total {
+  border-left-color: var(--color-primary);
+}
+
+.balance__label {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+}
+
+.balance__value {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.balance__value--negative {
+  color: var(--color-expense);
+}
+
+@media (max-width: 800px) {
+  .balance {
+    grid-template-columns: 1fr;
+  }
+}

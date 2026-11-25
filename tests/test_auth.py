@@ -53,3 +53,43 @@ async def test_login_unknown_user_returns_401(client: AsyncClient) -> None:
         json={"username": "ghost", "password": "pass"},
     )
     assert response.status_code == 401
+
+
+async def test_token_scopes_transactions_to_user(client: AsyncClient) -> None:
+    for username in ("alice", "bob"):
+        await client.post(
+            "/auth/register",
+            json={"username": username, "password": "secret"},
+        )
+
+    alice = await client.post(
+        "/auth/login", json={"username": "alice", "password": "secret"}
+    )
+    bob = await client.post(
+        "/auth/login", json={"username": "bob", "password": "secret"}
+    )
+    alice_headers = {"Authorization": f"Bearer {alice.json()['token']}"}
+    bob_headers = {"Authorization": f"Bearer {bob.json()['token']}"}
+
+    created = await client.post(
+        "/transactions/",
+        headers=alice_headers,
+        json={"title": "Alice tx", "type": "expense", "category": "Food", "amount": 100},
+    )
+    assert created.status_code == 201
+
+    alice_list = await client.get("/transactions/", headers=alice_headers)
+    bob_list = await client.get("/transactions/", headers=bob_headers)
+    assert alice_list.json()["total"] == 1
+    assert bob_list.json()["total"] == 0
+
+
+async def test_invalid_token_returns_401(client: AsyncClient) -> None:
+    await client.post(
+        "/auth/register", json={"username": "carol", "password": "secret"}
+    )
+    response = await client.get(
+        "/transactions/",
+        headers={"Authorization": "Bearer invalid-token"},
+    )
+    assert response.status_code == 401

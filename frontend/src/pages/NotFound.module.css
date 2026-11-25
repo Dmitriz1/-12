@@ -1,0 +1,14 @@
+.page {
+  text-align: center;
+  padding: 60px 16px;
+}
+
+.title {
+  font-size: 2rem;
+  margin-bottom: 12px;
+}
+
+.text {
+  color: var(--color-text-secondary);
+  margin-bottom: 24px;
+}

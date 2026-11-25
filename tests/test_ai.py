@@ -14,6 +14,26 @@ async def test_recommendations_no_data_returns_message(
     assert response.json()["recommendations"] == "Недостаточно данных для анализа."
 
 
+async def test_recommendations_without_token_returns_message(
+    client: AsyncClient, make_tx: MakeTx,
+) -> None:
+    await make_tx("Продукты", "expense", "Еда", 3000, datetime(2026, 5, 1, 12))
+
+    with patch("app.services.ai_service._GROQ_TOKEN", ""):
+        response = await client.get(
+            "/ai/recommendations",
+            params={
+                "dt_from": "2026-05-01T00:00:00",
+                "dt_to": "2026-05-31T23:59:59",
+            },
+        )
+
+    assert response.status_code == 200
+    assert response.json()["recommendations"] == (
+        "AI-рекомендации недоступны: не задан GROQ_TOKEN."
+    )
+
+
 async def test_recommendations_with_data_calls_groq(
     client: AsyncClient, make_tx: MakeTx,
 ) -> None:
@@ -26,10 +46,13 @@ async def test_recommendations_with_data_calls_groq(
         "choices": [{"message": {"content": "Совет 1. Совет 2. Совет 3."}}]
     }
 
-    with patch(
-        "app.services.ai_service.httpx.AsyncClient.post",
-        new_callable=AsyncMock,
-        return_value=mock_response,
+    with (
+        patch("app.services.ai_service._GROQ_TOKEN", "test-token"),
+        patch(
+            "app.services.ai_service.httpx.AsyncClient.post",
+            new_callable=AsyncMock,
+            return_value=mock_response,
+        ),
     ):
         response = await client.get(
             "/ai/recommendations",
