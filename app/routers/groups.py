@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import APIRouter, Depends, status, Query, HTTPException
 
 from app.routers.auth import auth_required
@@ -32,13 +33,15 @@ async def get_all(
     per_page: int = Query(10, ge=1, le=100),
     sort_by: str = Query("name", description="Поле сортировки"),
     sort_order: str = Query("desc", regex="^(asc|desc)$"),
+    search: Optional[str] = Query(None, min_length=1, description="Поиск по названию"),
 ):
     return await service.get_groups(
         user_id=user_id,
         page=page,
         per_page=per_page,
         sort_by=sort_by,
-        sort_order=sort_order
+        sort_order=sort_order,
+        search=search,
         )
 
 

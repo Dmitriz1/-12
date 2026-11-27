@@ -1,0 +1,33 @@
+.title {
+  margin-bottom: 24px;
+}
+
+.section {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.sectionTitle {
+  margin-bottom: 16px;
+  font-size: 1.15rem;
+}
+
+.chart {
+  max-width: 100%;
+  height: auto;
+  margin-top: 16px;
+  border-radius: var(--radius);
+}
+
+.panel {
+  margin-top: 16px;
+  padding: 16px;
+  background: rgba(16, 185, 129, 0.06);
+  border-left: 4px solid var(--color-income);
+  border-radius: var(--radius);
+  white-space: pre-wrap;
+  line-height: 1.6;
+}

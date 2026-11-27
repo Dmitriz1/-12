@@ -1,0 +1,43 @@
+.title {
+  margin-bottom: 24px;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.panel {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+
+.panelTitle {
+  margin-bottom: 16px;
+  font-size: 1.1rem;
+}
+
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.filterInput {
+  flex: 1;
+}
+
+@media (max-width: 800px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.formPanel {
+  max-width: 520px;
+}

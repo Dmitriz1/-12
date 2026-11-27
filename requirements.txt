@@ -12,5 +12,5 @@ pytest
 pytest-asyncio
 httpx
 rich
-plotext
+plotext==5.3.2
 openpyxl

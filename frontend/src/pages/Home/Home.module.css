@@ -1,0 +1,21 @@
+.home {
+  text-align: center;
+  padding: 60px 16px;
+}
+
+.title {
+  font-size: 2.4rem;
+  margin-bottom: 12px;
+}
+
+.subtitle {
+  color: var(--color-text-secondary);
+  margin-bottom: 32px;
+  font-size: 1.1rem;
+}
+
+.actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}

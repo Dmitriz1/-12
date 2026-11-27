@@ -6,7 +6,7 @@ from fastapi import Depends
 
 from app.repositories.analytics_repo import AnalyticsRepository
 
-_GROQ_TOKEN = os.getenv("GROQ_TOKEN", "")
+_GROQ_TOKEN = os.getenv("GROQ_TOKEN", "").strip()
 _GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 _GROQ_MODEL = "openai/gpt-oss-120b"
 
@@ -37,6 +37,8 @@ class AIService:
 
         if not categories:
             return "Недостаточно данных для анализа."
+        if not _GROQ_TOKEN:
+            return "AI-рекомендации недоступны: не задан GROQ_TOKEN."
 
         totals_map = {r.type: float(r.total) for r in totals}
         total_expense = totals_map.get("expense", 0.0)
