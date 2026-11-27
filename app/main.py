@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import Base, engine
 from app.models import group, transaction, user
-from app.routers import ai, analytics, auth, groups, transactions
+from app.routers import ai, analytics, auth, groups, transactions, users
 from app.handlers import exceptions
 from app.exceptions import custom_exceptions
 
@@ -25,6 +25,7 @@ async def on_startup():
         await conn.run_sync(Base.metadata.create_all)
 
 app.include_router(auth.router)
+app.include_router(users.router)
 app.include_router(transactions.router)
 app.include_router(groups.router)
 app.include_router(analytics.router)

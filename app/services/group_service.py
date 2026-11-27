@@ -22,6 +22,7 @@ class GroupService:
         per_page: int,
         sort_by: str,
         sort_order: str,
+        search: str | None = None,
     ) -> GroupResponseMetaData:
         
         if sort_by not in self.allowed_sort_fields:
@@ -32,7 +33,8 @@ class GroupService:
             page=page,
             per_page=per_page,
             sort_by=sort_by,
-            sort_order=sort_order
+            sort_order=sort_order,
+            search=search,
         )
         return{
         "items":

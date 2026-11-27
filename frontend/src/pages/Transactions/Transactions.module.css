@@ -37,3 +37,7 @@
     grid-template-columns: 1fr;
   }
 }
+
+.formPanel {
+  max-width: 520px;
+}

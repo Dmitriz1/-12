@@ -1,21 +1,83 @@
-.title {
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
   margin-bottom: 24px;
+}
+
+.title {
+  font-size: 1.5rem;
 }
 
 .card {
   background: var(--color-surface);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 24px;
-  max-width: 520px;
+  padding: 20px;
+  max-width: 720px;
 }
 
-.text {
-  color: var(--color-text-secondary);
-  margin-bottom: 16px;
-}
-
-.form {
+.toolbar {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 200px;
+}
+
+.perPage {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+}
+
+.sortButton {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.rowActions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  flex-wrap: wrap;
+}
+
+.paginationButtons {
+  display: flex;
+  gap: 8px;
+}
+
+.hint {
+  margin: -8px 0 16px;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+.formActions {
+  display: flex;
+  gap: 12px;
 }

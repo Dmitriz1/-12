@@ -23,6 +23,7 @@ export function Header() {
           <>
             <Link to="/transactions">Транзакции</Link>
             <Link to="/analytics">Аналитика</Link>
+            <Link to="/groups">Группы</Link>
             <Link to="/users">Пользователи</Link>
             <Button variant="ghost" onClick={handleLogout}>
               Выйти

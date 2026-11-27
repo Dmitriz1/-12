@@ -1,8 +1,14 @@
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
+import { handleApiError } from '../utils/apiErrorHandler';
 
 const baseURL = import.meta.env.VITE_API_BASE_URL || '/api';
 
-export const api = axios.create({ baseURL });
+export const api = axios.create({
+  baseURL,
+  headers: { 'Content-Type': 'application/json' },
+});
+
+export const apiClient = api;
 
 const TOKEN_KEY = 'finance_token';
 
@@ -12,7 +18,6 @@ export const tokenStorage = {
   clear: () => localStorage.removeItem(TOKEN_KEY),
 };
 
-// Подставляем токен в каждый запрос
 api.interceptors.request.use((config) => {
   const token = tokenStorage.get();
   if (token) {
@@ -21,18 +26,23 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Единая обработка сетевых ошибок
-export function extractErrorMessage(error: unknown): string {
-  if (error instanceof AxiosError) {
-    if (error.response) {
-      const detail = error.response.data?.detail;
-      if (typeof detail === 'string') return detail;
-      if (Array.isArray(detail)) {
-        return detail.map((item: { msg?: string }) => item.msg).filter(Boolean).join('; ');
-      }
-      return `Ошибка сервера: ${error.response.status}`;
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (axios.isCancel(error)) {
+      return Promise.reject(error);
     }
-    return 'Сервер недоступен. Проверьте подключение.';
-  }
-  return 'Неизвестная ошибка';
+    if (error.response) {
+      console.error('API Error:', error.response.data);
+    } else if (error.request) {
+      console.error('Network Error:', error.request);
+    } else {
+      console.error('Error:', error.message);
+    }
+    return Promise.reject(error);
+  },
+);
+
+export function extractErrorMessage(error: unknown): string {
+  return handleApiError(error);
 }

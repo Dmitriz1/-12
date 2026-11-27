@@ -46,3 +46,45 @@ export function validateTransaction(
 
   return { valid: Object.keys(errors).length === 0, errors };
 }
+
+export function validateGroup(data: { name?: string }): ValidationResult {
+  const errors: Record<string, string> = {};
+  const name = data.name?.trim() ?? '';
+
+  if (!name) {
+    errors.name = 'Введите название группы';
+  } else if (name.length < 3) {
+    errors.name = 'Минимум 3 символа';
+  } else if (name.length > 100) {
+    errors.name = 'Максимум 100 символов';
+  }
+
+  return { valid: Object.keys(errors).length === 0, errors };
+}
+
+export function validateUser(
+  data: { username?: string; password?: string },
+  options: { passwordRequired?: boolean } = {},
+): ValidationResult {
+  const errors: Record<string, string> = {};
+  const username = (data.username ?? '').trim();
+  const password = data.password ?? '';
+
+  if (!username) {
+    errors.username = 'Введите имя пользователя';
+  } else if (username.length < 3) {
+    errors.username = 'Минимум 3 символа';
+  } else if (username.length > 50) {
+    errors.username = 'Максимум 50 символов';
+  }
+
+  if (!password) {
+    if (options.passwordRequired) {
+      errors.password = 'Введите пароль';
+    }
+  } else if (password.length < 6) {
+    errors.password = 'Минимум 6 символов';
+  }
+
+  return { valid: Object.keys(errors).length === 0, errors };
+}

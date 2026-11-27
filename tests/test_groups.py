@@ -84,3 +84,25 @@ async def test_update_nonexistent_group_returns_404(
 ) -> None:
     response = await client.patch("/groups/99999", json={"name": "ValidName"})
     assert response.status_code == 404
+
+async def test_get_groups_search_by_name(
+    client: AsyncClient, db: AsyncSession, user,
+) -> None:
+    await _make_group(db, "Семья", user)
+    await _make_group(db, "Друзья", user)
+    await _make_group(db, "Семейный отпуск", user)
+
+    response = await client.get("/groups/", params={"search": "сем"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total"] == 2
+    assert {g["name"] for g in data["items"]} == {"Семья", "Семейный отпуск"}
+
+
+async def test_get_groups_search_escapes_wildcards(
+    client: AsyncClient, db: AsyncSession, user,
+) -> None:
+    await _make_group(db, "Семья", user)
+    response = await client.get("/groups/", params={"search": "%"})
+    assert response.status_code == 200
+    assert response.json()["total"] == 0

@@ -148,3 +148,14 @@ Backend-тесты используют ту же базу данных и оч�
 - Переиспользуемые UI-компоненты: `Button` (primary/secondary/ghost/danger), `Input` (label + error), `Table` (универсальная), `Spinner`
 - Axios-клиент с интерцептором авторизации и единой обработкой ошибок
 - Готовый фундамент для интеграции с Backend API
+
+## Практика 8: интеграция Frontend с Backend API
+
+- `frontend/src/api/client.ts` — Axios-клиент с интерцепторами (токен, логирование ошибок)
+- `frontend/src/api/{transactions,groups}.ts` — API-сервисы: `getAll` (пагинация, сортировка, фильтры), `getById`, `create`, `update`, `delete`
+- `frontend/src/types/index.ts` — типы сущностей, `PaginatedResponse<T>`, `ApiError`
+- `frontend/src/utils/apiErrorHandler.ts` — централизованная обработка ошибок API
+- `frontend/src/components/Notification/` — `NotificationProvider` / `useNotification` (toast)
+- `frontend/src/hooks/usePaginatedList.ts` — загрузка списков (loading/error, `AbortController`)
+- Страницы: `/transactions` (+ `/new`, `/:id/edit`) и `/groups` (+ `/new`, `/:id/edit`)
+- Backend: в `GET /groups/` добавлен параметр `search` (поиск по названию)

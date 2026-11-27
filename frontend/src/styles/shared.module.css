@@ -39,3 +39,55 @@
   background: rgba(239, 68, 68, 0.12);
   color: var(--color-expense);
 }
+
+.rowActions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.toolbar > * {
+  margin-bottom: 0;
+}
+
+.toolbarGrow {
+  flex: 1;
+  min-width: 160px;
+}
+
+.pageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.pageHeader h1 {
+  margin: 0;
+}
+
+.hint {
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+  margin-bottom: 12px;
+}
+
+.errorBox {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  border-radius: var(--radius);
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-expense);
+}

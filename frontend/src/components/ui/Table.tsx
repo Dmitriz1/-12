@@ -3,7 +3,8 @@ import styles from './Table.module.css';
 
 export interface Column<T> {
   key: keyof T;
-  title: string;
+  id?: string;
+  title: ReactNode;
   render?: (value: T[keyof T], row: T) => ReactNode;
   cellClassName?: (row: T) => string;
 }
@@ -30,7 +31,7 @@ export function Table<T>({
       <thead>
         <tr>
           {columns.map((col) => (
-            <th key={String(col.key)}>{col.title}</th>
+            <th key={col.id ?? String(col.key)}>{col.title}</th>
           ))}
         </tr>
       </thead>
@@ -41,7 +42,7 @@ export function Table<T>({
             data-testid={rowTestId?.(row, index)}
           >
             {columns.map((col) => (
-              <td key={String(col.key)} className={col.cellClassName?.(row)}>
+              <td key={col.id ?? String(col.key)} className={col.cellClassName?.(row)}>
                 {col.render
                   ? col.render(row[col.key], row)
                   : (row[col.key] as unknown as ReactNode)}

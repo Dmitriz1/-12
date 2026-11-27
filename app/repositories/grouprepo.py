@@ -37,9 +37,18 @@ class GroupRepository:
         per_page: int,
         sort_by: str,
         sort_order: str,
+        search: Optional[str] = None,
     ) -> tuple[list[Group], int]:
         query=select(Group).where(Group.owner_id == user_id)
         query_count=select(func.count(Group.id)).where(Group.owner_id == user_id)
+
+        if search:
+            pattern = "%" + (
+                search.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+            ) + "%"
+            condition = Group.name.ilike(pattern, escape="\\")
+            query = query.where(condition)
+            query_count = query_count.where(condition)
 
         sort_colums = {
             "id": Group.id,

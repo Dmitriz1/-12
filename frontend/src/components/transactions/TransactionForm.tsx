@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import type { TransactionCreate, TransactionType } from '../../types';
+import { FormSubmitError } from '../../utils/apiErrorHandler';
 import { validateTransaction } from '../../utils/validation';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
@@ -10,13 +11,23 @@ const CATEGORIES = ['Еда', 'Транспорт', 'Развлечения', '�
 
 interface Props {
   onSubmit: (data: TransactionCreate) => Promise<void>;
+  initialValues?: TransactionCreate;
+  submitLabel?: string;
+  resetOnSuccess?: boolean;
 }
 
-export function TransactionForm({ onSubmit }: Props) {
-  const [title, setTitle] = useState('');
-  const [type, setType] = useState<TransactionType>('expense');
-  const [category, setCategory] = useState(CATEGORIES[0]);
-  const [amount, setAmount] = useState('');
+export function TransactionForm({
+  onSubmit,
+  initialValues,
+  submitLabel = 'Добавить',
+  resetOnSuccess = true,
+}: Props) {
+  const [title, setTitle] = useState(initialValues?.title ?? '');
+  const [type, setType] = useState<TransactionType>(initialValues?.type ?? 'expense');
+  const [category, setCategory] = useState(initialValues?.category ?? CATEGORIES[0]);
+  const [amount, setAmount] = useState(
+    initialValues ? String(initialValues.amount) : '',
+  );
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -42,11 +53,16 @@ export function TransactionForm({ onSubmit }: Props) {
     setSubmitting(true);
     try {
       await onSubmit(payload);
-      setTitle('');
-      setAmount('');
-      setType('expense');
-      setCategory(CATEGORIES[0]);
+      if (resetOnSuccess) {
+        setTitle('');
+        setAmount('');
+        setType('expense');
+        setCategory(CATEGORIES[0]);
+      }
     } catch (err) {
+      if (err instanceof FormSubmitError) {
+        setErrors(err.fieldErrors);
+      }
       setServerError(err instanceof Error ? err.message : 'Ошибка при сохранении');
     } finally {
       setSubmitting(false);
@@ -89,7 +105,7 @@ export function TransactionForm({ onSubmit }: Props) {
           value={category}
           onChange={(e) => setCategory(e.target.value)}
         >
-          {CATEGORIES.map((c) => (
+          {(CATEGORIES.includes(category) ? CATEGORIES : [category, ...CATEGORIES]).map((c) => (
             <option key={c} value={c}>
               {c}
             </option>
@@ -120,7 +136,7 @@ export function TransactionForm({ onSubmit }: Props) {
       )}
 
       <Button type="submit" disabled={submitting}>
-        {submitting ? 'Сохранение...' : 'Добавить'}
+        {submitting ? 'Сохранение...' : submitLabel}
       </Button>
     </form>
   );

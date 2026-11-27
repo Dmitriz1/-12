@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { validateCredentials, validateTransaction } from '../utils/validation';
+import {
+  validateCredentials,
+  validateTransaction,
+  validateUser,
+} from '../utils/validation';
 
 describe('validateCredentials', () => {
   it('возвращает ошибки для пустых полей', () => {
@@ -57,5 +61,37 @@ describe('validateTransaction', () => {
     const result = validateTransaction({ ...base, type: 'transfer' });
     expect(result.valid).toBe(false);
     expect(result.errors.type).toBeDefined();
+  });
+});
+describe('validateUser', () => {
+  it('требует пароль при создании', () => {
+    const result = validateUser(
+      { username: 'alice', password: '' },
+      { passwordRequired: true },
+    );
+    expect(result.valid).toBe(false);
+    expect(result.errors.password).toBe('Введите пароль');
+  });
+
+  it('разрешает пустой пароль при редактировании', () => {
+    const result = validateUser(
+      { username: 'alice', password: '' },
+      { passwordRequired: false },
+    );
+    expect(result.valid).toBe(true);
+  });
+
+  it('проверяет длину пароля, если он задан', () => {
+    const result = validateUser({ username: 'alice', password: '123' });
+    expect(result.errors.password).toBe('Минимум 6 символов');
+  });
+
+  it('проверяет длину имени пользователя', () => {
+    expect(validateUser({ username: 'ab', password: 'secret1' }).errors.username).toBe(
+      'Минимум 3 символа',
+    );
+    expect(validateUser({ username: '', password: 'secret1' }).errors.username).toBe(
+      'Введите имя пользователя',
+    );
   });
 });

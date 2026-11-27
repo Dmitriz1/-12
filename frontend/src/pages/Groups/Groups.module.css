@@ -1,0 +1,15 @@
+.panel {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+
+.formPanel {
+  max-width: 520px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
